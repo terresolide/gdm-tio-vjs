@@ -1,16 +1,13 @@
 {
-  "name": "formater-skeleton-vjs",
+  "name": "gdm-tio-vjs",
   "version": "0.0.1",
-  "description": "Skeleton for Web component",
-  "preproduction": {
-    "url": "https://rawgit.com/terresolide/"
-  },
+  "description": "Display temporal serie",
   "production": {
-    "url": "https://cdn.rawgit.com/terresolide/"
+    "url": "https://cdn.jsdelivr.net/gh/terresolide"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terresolide/formater-skeleton-vjs.git"
+    "url": "git+https://github.com/terresolide/gdm-tio-vjs.git"
   },
   "keywords": [
     "vue.js"
@@ -20,28 +17,36 @@
   "license": "GNU",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --progress --open --hot --inline",
-    "pre": "cross-env NODE_ENV=preproduction webpack --progress --hide-modules",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
-    "vue": "^2.3.4",
-    "vue-custom-element": "^1.2.1",
-    "vue-i18n": "7.0.5"
+    "formater-commons-components-vjs": "github:terresolide/formater-commons-components-vjs",
+    "highcharts": "^9.0.1",
+    "leaflet": "^1.7.1",
+    "line-reader": "^0.4.0",
+    "moment": "^2.29.1",
+    "vue": "^2.6.12",
+    "vue-custom-element": "^3.2.14",
+    "vue-i18n": "^8.22.4",
+    "vue-resource": "^1.5.1"
   },
   "devDependencies": {
-    "@kazupon/vue-i18n-loader": "0.1.1",
-    "babel-core": "^6.0.0",
-    "babel-loader": "^6.0.0",
-    "babel-preset-env": "^1.5.1",
-    "clean-webpack-plugin": "^0.1.16",
-    "cross-env": "^3.0.0",
-    "css-loader": "^0.25.0",
-    "exports-loader": "^0.6.4",
-    "file-loader": "^0.9.0",
-    "style-loader": "^0.18.2",
-    "vue-loader": "^12.1.0",
-    "vue-template-compiler": "^2.3.3",
-    "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.4.5"
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/preset-env": "^7.12.11",
+    "@intlify/vue-i18n-loader": "^0.6.1",
+    "babel-loader": "^8.2.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^3.6.0",
+    "exports-loader": "^0.7.0",
+    "file-loader": "^6.2.0",
+    "url-loader": "^4.1.1",
+    "vue-loader": "^15.9.6",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.12",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.2"
   }
 }
