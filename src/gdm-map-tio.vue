@@ -17,15 +17,20 @@
   <span class="gdm-map-tio">
   <div id="gdmMap"></div>
   <div style="width:50%;margin-left:50%;height:600px;position:relative;" @mousemove="highlight($event)">
+      <div style="ming-height:150px;">DIVERS INFOS
+         <div v-if="points.EW && points.EW[0]" style="font-size:0.9rem;">
+		      {{ dateHighchart(points.EW[0].x)}}
+		     </div>
+		     <div v-for="graph, key in points" v-if="graph && graph[0]">
+		      <div >
+		          <span :style="{color: graph[0].color}"> &#9632;</span>
+		          {{key}} 
+        </div>
+      </div>
       <div id="graphEW" style="height:220px;">EW: {{loaded.EW}} %</div>
       <div id="graphNS" style="height:220px;">NS: {{loaded.NS}} %</div>
       <div id="graphMAGN" style="height:220px;">MAGN: {{loaded.MAGN}} %</div>
-   <div style="position:absolute;min-width: 30px;left: 0;top: 0;min-height: 30px;background:#AAA;">
-     <div v-if="points.EW && points.EW[0]">
-      {{ dateHighchart(points.EW[0].x)}}
-     </div>
-     <div v-for="graph, key in points">
-     {{key}}
+     
      
     <!--    var str = '';
                if (_this.points['EW'] && _this.points['EW'][0]) {
@@ -41,7 +46,7 @@
                  })
                }
                -->
-     </div>
+ 
    </div>
   </div>
   <div>
