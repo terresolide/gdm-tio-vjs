@@ -1,8 +1,12 @@
 # gdm-tio-vjs
 
 
-Component to test TIO visualization
+Vuejs Component to test TIO visualization
 
+## Use
+ * [vuejs](https://vuejs.org/)
+ * [Leaflet](https://leafletjs.com/)
+ * [Highcharts](https://www.highcharts.com/)
 
 ## Build Setup
 
