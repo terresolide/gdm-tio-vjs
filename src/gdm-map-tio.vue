@@ -16,7 +16,7 @@
 <template>
   <span class="gdm-map-tio">
   <div id="gdmMap"></div>
-  <div style="width:50%;margin-left:50%;height:600px;position:relative;" @mousemove="highlight($event)">
+  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">DIVERS INFOS
          <div v-if="points.EW && points.EW[0]" style="font-size:0.9rem;">
 		      {{ dateHighchart(points.EW[0].x)}}
@@ -27,9 +27,9 @@
 		          {{key}} 
         </div>
       </div>
-      <div id="graphEW" style="height:220px;">EW: {{loaded.EW}} %</div>
-      <div id="graphNS" style="height:220px;">NS: {{loaded.NS}} %</div>
-      <div id="graphMAGN" style="height:220px;">MAGN: {{loaded.MAGN}} %</div>
+      <div id="graphEW" style="height:220px;" @mousemove="highlight($event, 'EW')">EW: {{loaded.EW}} %</div>
+      <div id="graphNS" style="height:220px;" @mousemove="highlight($event, 'NS')">NS: {{loaded.NS}} %</div>
+      <div id="graphMAGN" style="height:220px;" @mousemove="highlight($event, 'MAGN')">MAGN: {{loaded.MAGN}} %</div>
      
      
     <!--    var str = '';
@@ -72,7 +72,7 @@ import HighchartsExporting from 'highcharts/modules/exporting'
 // import Highstock from 'highcharts/highstock'
  import  Indicators from 'highcharts/indicators/indicators'
  import  Regression from 'highcharts/indicators/regressions'
-
+ import jStat from 'jStat'
 
 if (typeof Highcharts === 'object') {
     HighchartsExporting(Highcharts)
@@ -181,6 +181,7 @@ export default {
           NS: null,
           MAGN: null
         },
+        selectedType: null,
 //   			files: {
 //   			  EW:'https://api.poleterresolide.fr/tio/ew_displ.json',
 //   			  NS: 'https://api.poleterresolide.fr/tio/ns_displ.json',
@@ -228,13 +229,17 @@ export default {
     dateHighchart (time) {
       return moment.unix(time / 1000).format('ll')
     },
-    highlight (e) {
+    highlight (e, type) {
+      if (!this.graphs[type]) {
+        return
+      }
         // console.log(e)
         var chart,
           point,
           i,
           event;
         var _this = this
+        console.log(e)
 //         ['EW', 'NS', 'MAGN'].forEach(function (key) {
 //           chart = _this.graphs[key]
 //           console.log(chart)
@@ -250,19 +255,47 @@ export default {
 //         })
         
         var points = {}
+        this.selectedType = type
+        event = this.graphs[type].pointer.normalize(e);
+         var point = this.graphs[type].series[0].searchPoint(event, true);
+         if (!point) {
+           return
+         }
+         points[type]= [point]
+         // if (points[type][0]) {
+           point.highlight(e);
+           this.graphs[type].addPlotLine({
+             color: '#999999',
+             value:  point.x,
+             width: 1,
+             id: 'highlight'
+           })
+
+//         console.log(moment.unix(point.x / 1000).format('ll'))
         for (var key in this.graphs) {
           var chart = this.graphs[key];
-          if (chart && typeof chart !== 'undefined') {
+          if (chart && typeof chart !== 'undefined' && key !== type) {
             points[key] = []
 	          // Find coordinates within the chart
-	          event = chart.pointer.normalize(e);
+	         // event = chart.pointer.normalize(e);
+           
+//             console.log(event)
 	          // Get the hovered point
-	          for (var j=0; j < chart.series.length; j++) {
-	            var point = chart.series[j].searchPoint(event, true);
-	            if (point) {
-	              points[key].push(point)
-	            }
-	          }
+// 	          for (var j=0; j < chart.series.length; j++) {
+// 	            var point = chart.series[j].searchPoint(event, true);
+// 	            if (point) {
+// 	              points[key].push(point)
+// 	            }
+// 	          }
+//               var pt = chart.series[0].points.find(el => el.x === point.x )
+//                Highcharts.each(chart.series[0].points, function(pt) {
+// 				          if (pt.x === point.x) {
+// 				            points[key].push(pt)
+// 				          }
+// 				       });
+//               if (pt) {
+//                 points[key].push(pt)
+//               }
 // 	            if (point) {
 // 	              points.push(point)
 // 	            }
@@ -389,6 +422,7 @@ export default {
          return
        }
        var _this = this
+      // var chartIndex = Object.keys(this.graphs).findIndex(key => key === type)
        quality = Math.round(quality * 100) / 100
        var color = this.colors[type]
        var lightColor = this.$shadeColor(color, 0.4)
@@ -410,34 +444,43 @@ export default {
            enabled: false
          },
          tooltip: {
-           enabled: false,
-//            formatter: function () {
-//               console.log(_this.points)
-//               if (!_this.points) {
-//                 return
+           enabled: true,
+           formatter: function (e) {
+//              console.log(chartIndex)
+//              console.log(e.chart.index)
+//               if (e.chart.index !== chartIndex) {
+//                 return false
 //               }
-//                var str = '';
-//                if (_this.points['EW'] && _this.points['EW'][0]) {
-//                  str += moment.unix(_this.points['EW'][0].x / 1000).format('ll')
-//                }
-//                for(var key in _this.points) {
-// 	               _this.points[key].forEach(function (pt) {
-// 	                 if (pt.series.name.indexOf('Linear Regression Indicator') >= 0) {
-// 	                   str += '<br /><span style="color:' + pt.color + ';">&#9679; </span><em>' + pt.series.name + ':' + Math.round(pt.y * 100) / 100 + '</em>'
-// 	                 } else if (pt.hasOwnProperty('open')) {
-// 	                   str += '<br/><span style="color:' + pt.color + ';">&#9632; </span><b> ' + pt.series.name + '</b> = ' + Math.round(pt.open * 100) / 100 + ' &pm; + EPS';
-// 	                 }
-// 	               })
-//                }
+              console.log(_this.selectedType)
+              console.log(type)
+              if (type !== _this.selectedType) {
+                return false
+              }
+              if (!_this.points) {
+                return false
+              }
+               var str = '';
+               if (_this.points['EW'] && _this.points['EW'][0]) {
+                 str += moment.unix(_this.points['EW'][0].x / 1000).format('ll')
+               }
+               for(var key in _this.points) {
+	               _this.points[key].forEach(function (pt) {
+	                 if (pt.series.name.indexOf('Linear Regression Indicator') >= 0) {
+	                   str += '<br /><span style="color:' + pt.color + ';">&#9679; </span><em>' + pt.series.name + ':' + Math.round(pt.y * 100) / 100 + '</em>'
+	                 } else if (pt.hasOwnProperty('open')) {
+	                   str += '<br/><span style="color:' + pt.color + ';">&#9632; </span><b> ' + pt.series.name + '</b> = ' + Math.round(pt.open * 100) / 100 + ' &pm; + EPS';
+	                 }
+	               })
+               }
                
-//                var result = this.points.reduce(function (s, point) {
-//                    return moment.unix(point.x / 1000).format('ll') + 
-//                       '<br/>' + point.series.name + ': ' +
-//                       Math.round(point.open * 100) / 100 + ' &pm; '  + quality;
-//                }, '<b>' + this.x + '</b>');
-//                console.log(result)
-//               return str
-//           },
+               var result = this.points.reduce(function (s, point) {
+                   return moment.unix(point.x / 1000).format('ll') + 
+                      '<br/>' + point.series.name + ': ' +
+                      Math.round(point.open * 100) / 100 + ' &pm; '  + quality;
+               }, '<b>' + this.x + '</b>');
+               console.log(result)
+              return str
+          },
            shared: true
          },
          plotOptions: {
@@ -495,16 +538,16 @@ export default {
 //               },
               
           }
-          , {
-            type: 'linearRegression',
-            color: color,
-            linkedTo: type,
-            lineWidth: 1,
+//           , {
+//             type: 'linearRegression',
+//             color: color,
+//             linkedTo: type,
+//             lineWidth: 1,
 //             zIndex: -1,
-            params: {
-              period: 4
-            }          
-         }
+//             params: {
+//               period: 4
+//             }          
+//          }
           ]
        })
     },
