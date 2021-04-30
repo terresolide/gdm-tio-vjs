@@ -261,10 +261,12 @@ export default {
          if (!point) {
            return
          }
+         console.log(point.x)
+         console.log(point)
          points[type]= [point]
          // if (points[type][0]) {
            point.highlight(e);
-           this.graphs[type].addPlotLine({
+           this.graphs[type].xAxis[0].addPlotLine({
              color: '#999999',
              value:  point.x,
              width: 1,
@@ -287,12 +289,12 @@ export default {
 // 	              points[key].push(point)
 // 	            }
 // 	          }
-//               var pt = chart.series[0].points.find(el => el.x === point.x )
-//                Highcharts.each(chart.series[0].points, function(pt) {
-// 				          if (pt.x === point.x) {
-// 				            points[key].push(pt)
-// 				          }
-// 				       });
+              var pt = chart.series[0].points.find(el => el.x === point.x )
+               Highcharts.each(chart.series[0].points, function(pt) {
+				          if (pt.x === point.x) {
+				            points[key].push(pt)
+				          }
+				       });
 //               if (pt) {
 //                 points[key].push(pt)
 //               }
@@ -304,6 +306,12 @@ export default {
 // 	          console.log(lines)
    
  	          chart.xAxis[0].removePlotLine('highlight')
+ 	          chart.xAxis[0].addPlotLine({
+             color: '#999999',
+             value:  point.x,
+             width: 1,
+             id: 'highlight'
+           })
 	          if (points[key][0]) {
 	            points[key][0].highlight(e);
 	            chart.xAxis[0].addPlotLine({
@@ -463,23 +471,23 @@ export default {
                if (_this.points['EW'] && _this.points['EW'][0]) {
                  str += moment.unix(_this.points['EW'][0].x / 1000).format('ll')
                }
-               for(var key in _this.points) {
-	               _this.points[key].forEach(function (pt) {
-	                 if (pt.series.name.indexOf('Linear Regression Indicator') >= 0) {
-	                   str += '<br /><span style="color:' + pt.color + ';">&#9679; </span><em>' + pt.series.name + ':' + Math.round(pt.y * 100) / 100 + '</em>'
-	                 } else if (pt.hasOwnProperty('open')) {
-	                   str += '<br/><span style="color:' + pt.color + ';">&#9632; </span><b> ' + pt.series.name + '</b> = ' + Math.round(pt.open * 100) / 100 + ' &pm; + EPS';
-	                 }
-	               })
-               }
+//                for(var key in _this.points) {
+// 	               _this.points[key].forEach(function (pt) {
+// 	                 if (pt.series.name.indexOf('Linear Regression Indicator') >= 0) {
+// 	                   str += '<br /><span style="color:' + pt.color + ';">&#9679; </span><em>' + pt.series.name + ':' + Math.round(pt.y * 100) / 100 + '</em>'
+// 	                 } else if (pt.hasOwnProperty('open')) {
+// 	                   str += '<br/><span style="color:' + pt.color + ';">&#9632; </span><b> ' + pt.series.name + '</b> = ' + Math.round(pt.open * 100) / 100 + ' &pm; + EPS';
+// 	                 }
+// 	               })
+//                }
                
                var result = this.points.reduce(function (s, point) {
                    return moment.unix(point.x / 1000).format('ll') + 
                       '<br/>' + point.series.name + ': ' +
-                      Math.round(point.open * 100) / 100 + ' &pm; '  + quality;
+                      Math.round(point.y * 100) / 100 + ' &pm; '  + quality;
                }, '<b>' + this.x + '</b>');
-               console.log(result)
-              return str
+               return result
+              //return str
           },
            shared: true
          },
