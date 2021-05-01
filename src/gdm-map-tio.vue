@@ -18,6 +18,7 @@
   <div id="gdmMap"></div>
   <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">DIVERS INFOS
+       <div v-html="tooltip"></div>
          <div v-if="points.EW && points.EW[0]" style="font-size:0.9rem;">
 		      {{ dateHighchart(points.EW[0].x)}}
 		     </div>
@@ -84,9 +85,10 @@ if (typeof Highcharts === 'object') {
    Indicators(Highcharts)
    Regression(Highcharts)
 }
-Highcharts.Point.prototype.highlight = function (event) {
+Highcharts.Point.prototype.highlight = function (event, popup) {
   event = this.series.chart.pointer.normalize(event);
   this.onMouseOver(); // Show the hover marker
+  
 //   this.series.chart.tooltip.refresh(this); // Show the tooltip
   this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
 };
@@ -192,8 +194,11 @@ export default {
           NS: 'http://api.formater/exemples/tio/ns_displ_div_4.json',
           MAGN: 'http://api.formater/exemples/tio/magn_displ_div_4.json'
         },
+        quality: [],
+        values: [],
   			done: false,
-  			dones : [false, false, false]
+  			dones : [false, false, false],
+  			tooltip: ''
 		}
   },
   watch: {
@@ -231,6 +236,7 @@ export default {
     },
     highlight (e, type) {
       if (!this.graphs[type]) {
+        this.tooltip = false
         return
       }
         // console.log(e)
@@ -255,28 +261,33 @@ export default {
 //         })
         
         var points = {}
-        this.selectedType = type
+       // this.selectedType = type
         event = this.graphs[type].pointer.normalize(e);
          var point = this.graphs[type].series[0].searchPoint(event, true);
          if (!point) {
            return
          }
-         console.log(point.x)
-         console.log(point)
-         points[type]= [point]
-         // if (points[type][0]) {
-           point.highlight(e);
-           this.graphs[type].xAxis[0].addPlotLine({
-             color: '#999999',
-             value:  point.x,
-             width: 1,
-             id: 'highlight'
-           })
-
-//         console.log(moment.unix(point.x / 1000).format('ll'))
+         var i = this.dates.findIndex(dt => dt === point.x)
+//          console.log(i)
+//          console.log(point.x)
+//          console.log(point)
+//          points[type]= [point]
+//          // if (points[type][0]) {
+//            point.highlight(e, true);
+//            this.graphs[type].xAxis[0].addPlotLine({
+//              color: '#999999',
+//              value:  point.x,
+//              width: 1,
+//              id: 'highlight'
+//            })
+//         point.options.values = []
+           
+        var date =  moment.unix(point.x/ 1000).format('ll') 
+        var values = []
+           console.log(moment.unix(point.x / 1000).format('ll'))
         for (var key in this.graphs) {
           var chart = this.graphs[key];
-          if (chart && typeof chart !== 'undefined' && key !== type) {
+          if (chart && typeof chart !== 'undefined') {
             points[key] = []
 	          // Find coordinates within the chart
 	         // event = chart.pointer.normalize(e);
@@ -290,11 +301,11 @@ export default {
 // 	            }
 // 	          }
               var pt = chart.series[0].points.find(el => el.x === point.x )
-               Highcharts.each(chart.series[0].points, function(pt) {
-				          if (pt.x === point.x) {
-				            points[key].push(pt)
-				          }
-				       });
+//                Highcharts.each(chart.series[0].points, function(pt) {
+// 				          if (pt.x === point.x) {
+// 				            points[key].push(pt)
+// 				          }
+// 				       });
 //               if (pt) {
 //                 points[key].push(pt)
 //               }
@@ -304,7 +315,7 @@ export default {
 // 	          }
 // 	          var lines = chart.xAxis[0].plotLineOrBands
 // 	          console.log(lines)
-   
+            values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key + ':' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
  	          chart.xAxis[0].removePlotLine('highlight')
  	          chart.xAxis[0].addPlotLine({
              color: '#999999',
@@ -313,22 +324,24 @@ export default {
              id: 'highlight'
            })
 	          if (points[key][0]) {
-	            points[key][0].highlight(e);
+	            points[key][0].highlight(e, key === type);
 	            chart.xAxis[0].addPlotLine({
 	              color: '#999999',
-	              value:  points[key][0].x,
+	              value:  point.x,
 	              width: 1,
 	              id: 'highlight'
 	            })
 	          }
           }
         }
-        if (Object.keys(points).length > 0) {
-          this.points = points
-          console.log(this.points)
-        } else {
-          this.points = null
-        }
+        this.tooltip = date + '<br />'
+        this.tooltip += values.join('<br />')
+//         if (Object.keys(points).length > 0) {
+//           this.points = points
+//           console.log(this.points)
+//         } else {
+//           this.points = null
+//         }
       
     },
     unselect (e) {
@@ -380,7 +393,14 @@ export default {
       }
     },
     formatter (args) {
-      
+//       console.log(args)
+//       return args.x
+      var s = '' // moment.unix(args.x / 1000).format('ll') 
+      console.log(this.values)
+      this.values.forEach(function (value) {
+        s += value
+      })
+      return s
     },
     draw (type, row, col) {
        var tab = this[type]
@@ -390,6 +410,7 @@ export default {
        tab = tab[row][col]
        var index = this.keys.findIndex(tb => tb === 'quality')
        var quality = tab[index]
+       this.quality[type] = quality
        if (tab[index] === 0) {
          console.log('Aucune valeur')
          return
@@ -452,25 +473,33 @@ export default {
            enabled: false
          },
          tooltip: {
-           enabled: true,
-           formatter: function (e) {
-//              console.log(chartIndex)
-//              console.log(e.chart.index)
-//               if (e.chart.index !== chartIndex) {
+           enabled: false,
+//            formatter: function (e) {
+//              console.log(e)
+//              if (this.point) {
+//                console.log(this.point.now.x)
+//              }
+//              return false
+//               return _this.tooltip
+           
+//               return _this.formatter(e)
+// //              console.log(chartIndex)
+// //              console.log(e.chart.index)
+// //               if (e.chart.index !== chartIndex) {
+// //                 return false
+// //               }
+//               console.log(_this.selectedType)
+//               console.log(type)
+//               if (type !== _this.selectedType) {
 //                 return false
 //               }
-              console.log(_this.selectedType)
-              console.log(type)
-              if (type !== _this.selectedType) {
-                return false
-              }
-              if (!_this.points) {
-                return false
-              }
-               var str = '';
-               if (_this.points['EW'] && _this.points['EW'][0]) {
-                 str += moment.unix(_this.points['EW'][0].x / 1000).format('ll')
-               }
+//               if (!_this.points) {
+//                 return false
+//               }
+//                var str = '';
+//                if (_this.points['EW'] && _this.points['EW'][0]) {
+//                  str += moment.unix(_this.points['EW'][0].x / 1000).format('ll')
+//                }
 //                for(var key in _this.points) {
 // 	               _this.points[key].forEach(function (pt) {
 // 	                 if (pt.series.name.indexOf('Linear Regression Indicator') >= 0) {
@@ -481,14 +510,14 @@ export default {
 // 	               })
 //                }
                
-               var result = this.points.reduce(function (s, point) {
-                   return moment.unix(point.x / 1000).format('ll') + 
-                      '<br/>' + point.series.name + ': ' +
-                      Math.round(point.y * 100) / 100 + ' &pm; '  + quality;
-               }, '<b>' + this.x + '</b>');
-               return result
+//                var result = this.points.reduce(function (s, point) {
+//                    return moment.unix(point.x / 1000).format('ll') + 
+//                       '<br/>' + point.series.name + ': ' +
+//                       Math.round(point.y * 100) / 100 + ' &pm; '  + quality;
+//                }, '<b>' + this.x + '</b>');
+//                return result
               //return str
-          },
+//          },
            shared: true
          },
          plotOptions: {
