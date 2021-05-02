@@ -18,15 +18,7 @@
   <div id="gdmMap"></div>
   <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">DIVERS INFOS
-       <div v-html="tooltip"></div>
-         <div v-if="points.EW && points.EW[0]" style="font-size:0.9rem;">
-		      {{ dateHighchart(points.EW[0].x)}}
-		     </div>
-		     <div v-for="graph, key in points" v-if="graph && graph[0]">
-		      <div >
-		          <span :style="{color: graph[0].color}"> &#9632;</span>
-		          {{key}} 
-        </div>
+       <div>@todo</div>
       </div>
       <div id="graphEW" style="height:220px;" @mousemove="highlight($event, 'EW')">EW: {{loaded.EW}} %</div>
       <div id="graphNS" style="height:220px;" @mousemove="highlight($event, 'NS')">NS: {{loaded.NS}} %</div>
@@ -71,10 +63,32 @@ import HighchartsExporting from 'highcharts/modules/exporting'
  import Data from 'highcharts/modules/data'
  import Accessibility from 'highcharts/modules/accessibility'
 // import Highstock from 'highcharts/highstock'
- import  Indicators from 'highcharts/indicators/indicators'
- import  Regression from 'highcharts/indicators/regressions'
+// import  Indicators from 'highcharts/indicators/indicators'
+//  import  Regression from 'highcharts/indicators/regressions'
  import jStat from 'jStat'
-
+ function regression(arrWeight, arrHeight) {
+   let r, sy, sx, b, a, meanX, meanY;
+   r = jStat.corrcoeff(arrHeight, arrWeight);
+   sy = jStat.stdev(arrWeight);
+   sx = jStat.stdev(arrHeight);
+   meanY = jStat(arrWeight).mean();
+   meanX = jStat(arrHeight).mean();
+   b = r * (sy / sx);
+   a = meanY - meanX * b;
+   //Set up a line
+   let y1, y2, x1, x2;
+   x1 = jStat.min(arrHeight);
+   x2 = jStat.max(arrHeight);
+   y1 = a + b * x1;
+   y2 = a + b * x2;
+   return {
+     line: [
+       [x1, y1],
+       [x2, y2]
+     ],
+     r
+   };
+}
 if (typeof Highcharts === 'object') {
     HighchartsExporting(Highcharts)
     HighchartsMore(Highcharts) // init module
@@ -82,16 +96,20 @@ if (typeof Highcharts === 'object') {
     Data(Highcharts)
    Accessibility(Highcharts)
    // Highstock(Highcharts)
-   Indicators(Highcharts)
-   Regression(Highcharts)
+   // for regression
+//    Indicators(Highcharts)
+//    Regression(Highcharts)
 }
-Highcharts.Point.prototype.highlight = function (event, popup) {
-  event = this.series.chart.pointer.normalize(event);
-  this.onMouseOver(); // Show the hover marker
-  
-//   this.series.chart.tooltip.refresh(this); // Show the tooltip
-  this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
-};
+// Highcharts.Point.prototype.highlight = function (event, popup) {
+//   event = this.series.chart.pointer.normalize(event);
+// //  this.onMouseOver(); // Show the hover marker
+// //   if (popup) {
+// //     this.series.chart.tooltip.refresh(this); // Show the tooltip
+// //   } else {
+// //     this.series.chart.tooltip.hide()
+// //   }
+//   this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
+// };
 
 Highcharts.Pointer.prototype.reset = function () {
   return undefined;
@@ -235,173 +253,83 @@ export default {
       return moment.unix(time / 1000).format('ll')
     },
     highlight (e, type) {
-      if (!this.graphs[type]) {
-        this.tooltip = false
-        return
-      }
+//       if (!this.graphs[type]) {
+//         this.tooltip = false
+//         return
+//       }
         // console.log(e)
         var chart,
           point,
           i,
           event;
         var _this = this
-        console.log(e)
-//         ['EW', 'NS', 'MAGN'].forEach(function (key) {
-//           chart = _this.graphs[key]
-//           console.log(chart)
-//           if (chart) {
-//             event = chart.pointer.normalize(e);
-//             // Get the hovered point
-//             point = chart.series[0].searchPoint(event, true);
 
-//             if (point) {
-//               point.highlight(e);
-//             }
-//           }
-//         })
-        
-        var points = {}
-       // this.selectedType = type
         event = this.graphs[type].pointer.normalize(e);
-         var point = this.graphs[type].series[0].searchPoint(event, true);
-         if (!point) {
-           return
-         }
-         var i = this.dates.findIndex(dt => dt === point.x)
-//          console.log(i)
-//          console.log(point.x)
-//          console.log(point)
-//          points[type]= [point]
-//          // if (points[type][0]) {
-//            point.highlight(e, true);
-//            this.graphs[type].xAxis[0].addPlotLine({
-//              color: '#999999',
-//              value:  point.x,
-//              width: 1,
-//              id: 'highlight'
-//            })
-//         point.options.values = []
-           
-        var date =  moment.unix(point.x/ 1000).format('ll') 
-        var values = []
-           console.log(moment.unix(point.x / 1000).format('ll'))
+        var point = this.graphs[type].series[0].searchPoint(event, true);
+        if (!point) {
+          return
+        }        
         for (var key in this.graphs) {
           var chart = this.graphs[key];
           if (chart && typeof chart !== 'undefined') {
-            points[key] = []
-	          // Find coordinates within the chart
-	         // event = chart.pointer.normalize(e);
-           
-//             console.log(event)
-	          // Get the hovered point
-// 	          for (var j=0; j < chart.series.length; j++) {
-// 	            var point = chart.series[j].searchPoint(event, true);
-// 	            if (point) {
-// 	              points[key].push(point)
-// 	            }
-// 	          }
-              var pt = chart.series[0].points.find(el => el.x === point.x )
-//                Highcharts.each(chart.series[0].points, function(pt) {
-// 				          if (pt.x === point.x) {
-// 				            points[key].push(pt)
-// 				          }
-// 				       });
-//               if (pt) {
-//                 points[key].push(pt)
-//               }
-// 	            if (point) {
-// 	              points.push(point)
-// 	            }
-// 	          }
-// 	          var lines = chart.xAxis[0].plotLineOrBands
-// 	          console.log(lines)
-            values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key + ':' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
- 	          chart.xAxis[0].removePlotLine('highlight')
+            chart.xAxis[0].removePlotLine('highlight')
  	          chart.xAxis[0].addPlotLine({
              color: '#999999',
              value:  point.x,
              width: 1,
              id: 'highlight'
            })
-	          if (points[key][0]) {
-	            points[key][0].highlight(e, key === type);
-	            chart.xAxis[0].addPlotLine({
-	              color: '#999999',
-	              value:  point.x,
-	              width: 1,
-	              id: 'highlight'
-	            })
-	          }
           }
-        }
-        this.tooltip = date + '<br />'
-        this.tooltip += values.join('<br />')
-//         if (Object.keys(points).length > 0) {
-//           this.points = points
-//           console.log(this.points)
-//         } else {
-//           this.points = null
+        }    
+    },
+//     unselect (e) {
+//       for (let i = 0; i < Highcharts.charts.length; ++i) {
+//         let chart = Highcharts.charts[i];
+//         let event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
+//         let point;
+//         for (let j = 0; j < chart.series.length && !point; ++j) {
+//           point = chart.series[j].searchPoint(event, true);
 //         }
-      
-    },
-    unselect (e) {
-      for (let i = 0; i < Highcharts.charts.length; ++i) {
-        let chart = Highcharts.charts[i];
-        let event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
-        let point;
-        for (let j = 0; j < chart.series.length && !point; ++j) {
-          point = chart.series[j].searchPoint(event, true);
-        }
-        if (!point) return;
+//         if (!point) return;
        
-        if (e.type === "mousemove") {
-           point.onMouseOver();
-          chart.xAxis[0].drawCrosshair(event, point); // Show the crosshair
-        } else {
-          point.onMouseOut();
+//         if (e.type === "mousemove") {
+//            point.onMouseOver();
+//           chart.xAxis[0].drawCrosshair(event, point); // Show the crosshair
+//         } else {
+//           point.onMouseOut();
           
-          chart.xAxis[0].hideCrosshair();
-        }
-        chart.tooltip.hide(point);
-      }
-    },
-    updateExtremes ({ min, max }) {
-      Highcharts.charts.forEach(function (chart) {
-        console.log(chart)
-        // machin pour recharger 
-        if (chart && chart.xAxis) {
-          chart.xAxis[0].setExtremes(min, max)
-        }
-      })
-    },
-    syncExtremes (e, type) {
-      if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
-        for (var tp in this.graphs) {
-           var chart = this.graphs[tp]
-            if (tp !== type) {
-                if (chart.xAxis[0].setExtremes) { // It is null while updating
-                    chart.xAxis[0].setExtremes(
-                        e.min,
-                        e.max,
-                        undefined,
-                        false,
-                        { trigger: 'syncExtremes' }
-                    )
-                }
-            }
-         }
-      }
-    },
-    formatter (args) {
-//       console.log(args)
-//       return args.x
-      var s = '' // moment.unix(args.x / 1000).format('ll') 
-      console.log(this.values)
-      this.values.forEach(function (value) {
-        s += value
-      })
-      return s
-    },
+//           chart.xAxis[0].hideCrosshair();
+//         }
+//         chart.tooltip.hide(point);
+//       }
+//     },
+//     updateExtremes ({ min, max }) {
+//       Highcharts.charts.forEach(function (chart) {
+//         console.log(chart)
+//         // machin pour recharger 
+//         if (chart && chart.xAxis) {
+//           chart.xAxis[0].setExtremes(min, max)
+//         }
+//       })
+//     },
+//     syncExtremes (e, type) {
+//       if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
+//         for (var tp in this.graphs) {
+//            var chart = this.graphs[tp]
+//             if (tp !== type) {
+//                 if (chart.xAxis[0].setExtremes) { // It is null while updating
+//                     chart.xAxis[0].setExtremes(
+//                         e.min,
+//                         e.max,
+//                         undefined,
+//                         false,
+//                         { trigger: 'syncExtremes' }
+//                     )
+//                 }
+//             }
+//          }
+//       }
+//     },
     draw (type, row, col) {
        var tab = this[type]
        if (!tab || !tab[row] || !tab[row][col]) {
@@ -423,6 +351,8 @@ export default {
        var max = null
        var delta = []
        var plotlines = []
+       var regData = []
+       var dates = []
        // fill data
        this.dates.forEach (function (date, n) {
          if (!isNaN(tab[n]) && tab[n] !== null) {
@@ -433,6 +363,8 @@ export default {
                tab[n] - quality,
                tab[n]
             ])
+            dates.push(date)
+            regData.push(tab[n])
             if (min === null || min > tab[n]) {
               min = tab[n]
             } 
@@ -447,6 +379,8 @@ export default {
             })
          }
        })
+       var reg = regression(regData, dates)
+       console.log(reg)
        if (data.length === 0) {
          return
        }
@@ -460,8 +394,6 @@ export default {
            zoomType: 'x'
          },
          title: 'Test',
-         
-
          height: '32%',
          credits: {
            enabled:false
@@ -473,52 +405,26 @@ export default {
            enabled: false
          },
          tooltip: {
-           enabled: false,
-//            formatter: function (e) {
-//              console.log(e)
-//              if (this.point) {
-//                console.log(this.point.now.x)
-//              }
-//              return false
-//               return _this.tooltip
-           
-//               return _this.formatter(e)
-// //              console.log(chartIndex)
-// //              console.log(e.chart.index)
-// //               if (e.chart.index !== chartIndex) {
-// //                 return false
-// //               }
-//               console.log(_this.selectedType)
-//               console.log(type)
-//               if (type !== _this.selectedType) {
-//                 return false
-//               }
-//               if (!_this.points) {
-//                 return false
-//               }
-//                var str = '';
-//                if (_this.points['EW'] && _this.points['EW'][0]) {
-//                  str += moment.unix(_this.points['EW'][0].x / 1000).format('ll')
-//                }
-//                for(var key in _this.points) {
-// 	               _this.points[key].forEach(function (pt) {
-// 	                 if (pt.series.name.indexOf('Linear Regression Indicator') >= 0) {
-// 	                   str += '<br /><span style="color:' + pt.color + ';">&#9679; </span><em>' + pt.series.name + ':' + Math.round(pt.y * 100) / 100 + '</em>'
-// 	                 } else if (pt.hasOwnProperty('open')) {
-// 	                   str += '<br/><span style="color:' + pt.color + ';">&#9632; </span><b> ' + pt.series.name + '</b> = ' + Math.round(pt.open * 100) / 100 + ' &pm; + EPS';
-// 	                 }
-// 	               })
-//                }
-               
-//                var result = this.points.reduce(function (s, point) {
-//                    return moment.unix(point.x / 1000).format('ll') + 
-//                       '<br/>' + point.series.name + ': ' +
-//                       Math.round(point.y * 100) / 100 + ' &pm; '  + quality;
-//                }, '<b>' + this.x + '</b>');
-//                return result
-              //return str
-//          },
-           shared: true
+           enabled: true,
+           formatter (e) {
+             if (!this.point) {
+               return false
+             }
+             var values = []
+             for (var key in _this.graphs) {
+               var chart = _this.graphs[key];
+			          if (chart && typeof chart !== 'undefined') {
+			            var pt = chart.series[0].points.find(el => el.x === this.point.x )
+			            values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key + ': ' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
+			          }
+			          if (key !== type) {
+			            chart.tooltip.hide();
+			          }
+             }
+             var s = '<b>' + moment.unix(this.point.x/ 1000).format('ll') + '</b><br />'
+             return s + values.join('<br />')
+           },
+           shared: false
          },
          plotOptions: {
 //            boxplot: {
@@ -537,19 +443,16 @@ export default {
 //                whiskerWidth: 1
 //            }
        },
-//        tooltip: {
-//          shared: true
-//        },
          xAxis: {
             type: 'datetime',
             lineColor:'#666',
             events: {
-              setExtremes (e) {
-                _this.syncExtremes(e, type)
-              },
-              afterSetExtremes (e) {
-                _this.updateExtremes(e)
-              }
+//               setExtremes (e) {
+//                 _this.syncExtremes(e, type)
+//               },
+//               afterSetExtremes (e) {
+//                 _this.updateExtremes(e)
+//               }
             },
             gridLineWidth: 0,
             plotLines: plotlines,
@@ -566,6 +469,7 @@ export default {
               color: color,
               type: 'ohlc',
               id: type,
+              zIndex:10,
               data:data,
               lineWidth: 1
 //               states: {
@@ -574,6 +478,13 @@ export default {
 //                   }
 //               },
               
+          }, {
+            name: 'regression',
+            color: color,
+            data: reg.line,
+            lineWidth: 1,
+           // zIndex: -1,
+            enableMouseTracking: false
           }
 //           , {
 //             type: 'linearRegression',
@@ -669,6 +580,15 @@ export default {
           break
         case 'Magn_DISPLACEMENT_TIMESERIES':
           this.MAGN = response.body.data
+          var marker = null
+          var _this = this
+//           this.MAGN.forEach(function (line) {
+//             line.forEach(function (col) {
+//               if (col[3] !== null) {
+//               L.marker([col[0], col[1]]).addTo(_this.map)
+//               }
+//             })
+//           })
           this.$set(this.dones, 2, true)
           break
         }
