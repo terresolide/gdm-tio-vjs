@@ -209,9 +209,9 @@ export default {
 //   			  MAGN: 'https://api.poleterresolide.fr/tio/magn_displ.json'
 //   			},
         files: {
-          EW:'http://api.formater/exemples/tio/ew_displ_div_4.json',
-          NS: 'http://api.formater/exemples/tio/ns_displ_div_4.json',
-          MAGN: 'http://api.formater/exemples/tio/magn_displ_div_4.json'
+          EW:'https://api.poleterresolide.fr/tio/ew_displ_div_4.json',
+          NS: 'https://api.poleterresolide.fr/tio/ns_displ_div_4.json',
+          MAGN: 'https://api.poleterresolide.fr/tio/magn_displ_div_4.json'
         },
         quality: [],
         values: [],
