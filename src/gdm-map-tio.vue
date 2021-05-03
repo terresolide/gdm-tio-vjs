@@ -43,7 +43,7 @@
    </div>
   </div>
   <div>
-    <input type="button" @click="load" value="charger"/>
+    <input type="button" @click="load" value="charger" :disabled="!drawn"/>
     <div v-if="!done">{{loaded}}</div>
     <div v-else>Ready!</div>
   </div>
@@ -54,6 +54,7 @@
 
 <script>
 var L = require("leaflet")
+L.PixiOverlay = require('leaflet-pixi-overlay')
 // var lineReader = require('line-reader')
 import * as Highcharts from 'highcharts'
 import HighchartsExporting from 'highcharts/modules/exporting'
@@ -215,6 +216,7 @@ export default {
         quality: [],
         values: [],
   			done: false,
+  			drawn: true,
   			dones : [false, false, false],
   			tooltip: ''
 		}
@@ -244,13 +246,60 @@ export default {
      // this.testRead()
   },
   methods: {
+    removeCircles () {
+      if (this.map) {
+        
+        var _this = this
+        this.map.eachLayer(function (layer) {
+          if (layer instanceof L.Circle) {
+            _this.map.removeLayer(layer);
+          }
+//           if (layer instanceof L.Polygon) {
+//             _this.map.removeLayer(layer);
+//           }
+        })
+      }
+    },
     load () {
+      this.drawn = false
+      this.removeCircles()
       this.readJSON('EW')
       this.readJSON('NS')
       this.readJSON('MAGN')
     },
     dateHighchart (time) {
       return moment.unix(time / 1000).format('ll')
+    },
+    displayPoints (line, step) {
+      if (line >= this.MAGN.length) {
+        this.drawn = true
+        console.log('superieur')
+        return
+      }
+      var _this = this
+      for (var index=line; index < line + step && index < this.MAGN.length; index++) {
+        this.MAGN[index].forEach(function (col, k) {
+          if (col[3] !== null) {
+	          L.circle([col[0], col[1]], {weight:1, radius: 5, height: col[3], line:index, col: k})
+	          .on('click', function (e) {
+	            _this.marker.setLatLng(e.target.getLatLng())
+	            _this.drawGraphs(e.target.options.line, e.target.options.col)
+	          })
+	          .addTo(_this.map)
+          }
+        })
+      }
+      setTimeout(function () {
+        _this.displayPoints(line + step, step)
+      }, 0)
+      
+//    this.MAGN.forEach(function (line) {
+//      line.forEach(function (col) {
+//        if (col[3] !== null) {
+//          L.marker([col[0], col[1]]).addTo(_this.map)
+//        }
+//      })
+//    })
     },
     highlight (e, type) {
 //       if (!this.graphs[type]) {
@@ -263,7 +312,9 @@ export default {
           i,
           event;
         var _this = this
-
+        if (!this.graphs[type]) {
+          return false
+        }
         event = this.graphs[type].pointer.normalize(e);
         var point = this.graphs[type].series[0].searchPoint(event, true);
         if (!point) {
@@ -380,7 +431,6 @@ export default {
          }
        })
        var reg = regression(regData, dates)
-       console.log(reg)
        if (data.length === 0) {
          return
        }
@@ -523,21 +573,54 @@ export default {
             _this.graphs[key] = null
           }
         })
-        var x = Math.floor(_this.col * (e.latlng.lng - _this.bbox.minlon) / _this.deltaLng)
-        var y = _this.row - Math.ceil(_this.row * (e.latlng.lat - _this.bbox.minlat) / (_this.deltaLat))
-        var tab = null
-        if (_this.EW && _this.EW[y] && _this.EW[y][x]) {
-          tab = _this.EW[y][x]
-          _this.marker.setLatLng([tab[0], tab[1]])
-        }
-        console.log('y=', y)
-        console.log('x=', x)
-        for(var key in _this.colors) {
-          _this.draw(key, y, x)
+        _this.marker.setLatLng(e.latlng)
+//         var x = Math.floor(_this.col * (e.latlng.lng - _this.bbox.minlon) / _this.deltaLng)
+//         var y = _this.row - Math.ceil(_this.row * (e.latlng.lat - _this.bbox.minlat) / (_this.deltaLat))
+//         var tab = null
+//         if (_this.EW && _this.EW[y] && _this.EW[y][x]) {
+//           tab = _this.EW[y][x]
+//           _this.marker.setLatLng([tab[0], tab[1]])
+//         }
+//         console.log('y=', y)
+//         console.log('x=', x)
+//         for(var key in _this.colors) {
+//           _this.draw(key, y, x)
+//         }
+      })
+      this.load()
+    },
+    drawGraphs (line, col) {
+     
+      var graphs = this.graphs
+      var colors = this.colors
+      var self = this
+      ['EW', 'NS', 'MAGN'].forEach(function (key) {
+        if (graphs[key]) {
+          graphs[key].destroy()
+          graphs[key] = null
         }
       })
+      if (!this.MAGN[line] || !this.MAGN[line][col]) {
+        return
+      }
+      this.infos = {
+          lat: this.MAGN[line][col][0],
+          lng: this.MAGN[line][col][1],
+          height: this.MAGN[line][col][2]
+      }
+//       var x = Math.floor(_this.col * (e.latlng.lng - _this.bbox.minlon) / _this.deltaLng)
+//       var y = _this.row - Math.ceil(_this.row * (e.latlng.lat - _this.bbox.minlat) / (_this.deltaLat))
+//       var tab = null
+//       if (_this.EW && _this.EW[y] && _this.EW[y][x]) {
+//         tab = _this.EW[y][x]
+//         _this.marker.setLatLng([tab[0], tab[1]])
+//       }
+//       console.log('y=', y)
+//       console.log('x=', x)
+      for(var key in colors) {
+        this.draw(key, line, col)
+      }
     },
-
     readJSON (key) {
       var _this = this
       var progressLoad = (e) => {
@@ -582,6 +665,7 @@ export default {
           this.MAGN = response.body.data
           var marker = null
           var _this = this
+          this.displayPoints(0, 3)
 //           this.MAGN.forEach(function (line) {
 //             line.forEach(function (col) {
 //               if (col[3] !== null) {

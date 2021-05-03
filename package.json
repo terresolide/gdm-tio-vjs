@@ -1,6 +1,6 @@
 {
   "name": "gdm-tio-vjs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Display temporal serie",
   "production": {
     "url": "https://cdn.jsdelivr.net/gh/terresolide"
@@ -24,6 +24,7 @@
     "highcharts": "^9.0.1",
     "jStat": "^1.8.6",
     "leaflet": "^1.7.1",
+    "leaflet-pixi-overlay": "^1.8.1",
     "line-reader": "^0.4.0",
     "moment": "^2.29.1",
     "vue": "^2.6.12",
