@@ -16,6 +16,7 @@
 <template>
   <span class="gdm-map-tio">
   <div id="gdmMap"></div>
+  <tio-graph :dates="dates" :values="ptValues"></tio-graph>
   <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">DIVERS INFOS
        <div>@todo</div>
@@ -145,7 +146,7 @@ Icon.Default.mergeOptions({
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
-
+import TioGraph from './tio-graph.vue'
 // Highcharts.Point.prototype.highlight = function(event) {
 //   event = this.series.chart.pointer.normalize(event);
 //   console.log(event)
@@ -161,6 +162,9 @@ import moment from 'moment'
 // import reader from './file-reader.js'
 export default {
   name: 'GdmMapTio',
+  components: {
+    TioGraph
+  },
   props:{
       lang: {
           type: String,
@@ -177,6 +181,7 @@ export default {
   			pseudo: 'Truc',
   			map: null,
   			loaded: {},
+  			ptValues: {},
   			// points: [],
   			col: 640,
   			row: 425,
@@ -590,7 +595,25 @@ export default {
       this.load()
     },
     drawGraphs (line, col) {
-     
+      this.ptValues = null
+      
+      var tab = this.MAGN
+      if (!tab || !tab[line] || !tab[line][col]) {
+        return false
+      }
+      this.ptValues = {
+          EW: null,
+          NS: null,
+          MAGN: null
+      }
+      var values = {
+          EW: this.EW[line][col],
+          NS: this.NS[line][col],
+          MAGN: this.MAGN[line][col]
+      }
+      this.ptValues = values
+      return
+      
       var graphs = this.graphs
       var colors = this.colors
       var self = this
