@@ -68,8 +68,12 @@ export default {
       type: Array,
       default: () => []
     },
-    values: {
+    ptValues: {
       type: Object,
+      default: () => {}
+    },
+    keys: {
+      type: Array,
       default: () => []
     }
   },
@@ -85,7 +89,8 @@ export default {
     }
   },
   watch: {
-    values (newvalues) {
+    ptValues (newvalues) {
+      console.log('newvalues')
       this.draw(newvalues)
     }
   },
@@ -125,23 +130,30 @@ export default {
     draw (values) {
       console.log(values)
       // remove old graphs
-      var _this = this
-     // var colors = this.colors
-      
-      ['EW', 'NS', 'MAGN'].forEach(function (key) {
-        if (_this.graphs[key]) {
-          _this.graphs[key].destroy()
-          _this.graphs[key] = null
-        }
-      })
-      return
-      ['EW', 'NS', 'MAGN'].forEach(function (key) {
-        if (values[key]) {
-         _this.drawOne(key, values[key])
-        }
-      })
+      this.drawOne('EW', values.EW)
+      this.drawOne('NS', values.NS)
+      this.drawOne('MAGN', values.MAGN)
+//       ['EW', 'NS', 'MAGN'].forEach(function (key) {
+//         console.log(key)
+//         console.log(_this.graphs)
+// //         if (_this.graphs[key]) {
+// //           _this.graphs[key].destroy()
+// //           _this.graphs[key] = null
+// //         }
+//       })
+     
+//       ['EW', 'NS', 'MAGN'].forEach(function (key) {
+//         if (values[key]) {
+//          _this.drawOne(key, values[key])
+//         }
+//       })
     },
     drawOne (type, tab) {
+      // remove graph if exists
+      if (this.graphs[type]) {
+        this.graphs[type].destroy()
+        this.graphs[type] = null
+      }
 //       var tab = this[type]
 //       if (!tab || !tab[row] || !tab[row][col]) {
 //         return false

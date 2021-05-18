@@ -16,8 +16,8 @@
 <template>
   <span class="gdm-map-tio">
   <div id="gdmMap"></div>
-  <tio-graph :dates="dates" :values="ptValues"></tio-graph>
-  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
+  <tio-graph :dates="dates" :pt-values="ptValues" :keys="keys"></tio-graph>
+<!--  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">DIVERS INFOS
        <div>@todo</div>
       </div>
@@ -26,23 +26,10 @@
       <div id="graphMAGN" style="height:220px;" @mousemove="highlight($event, 'MAGN')">MAGN: {{loaded.MAGN}} %</div>
      
      
-    <!--    var str = '';
-               if (_this.points['EW'] && _this.points['EW'][0]) {
-                 str += moment.unix(_this.points['EW'][0].x / 1000).format('ll')
-               }
-               for(var key in _this.points) {
-                 _this.points[key].forEach(function (pt) {
-                   if (pt.series.name.indexOf('Linear Regression Indicator') >= 0) {
-                     str += '<br /><span style="color:' + pt.color + ';">&#9679; </span><em>' + pt.series.name + ':' + Math.round(pt.y * 100) / 100 + '</em>'
-                   } else if (pt.hasOwnProperty('open')) {
-                     str += '<br/><span style="color:' + pt.color + ';">&#9632; </span><b> ' + pt.series.name + '</b> = ' + Math.round(pt.open * 100) / 100 + ' &pm; + EPS';
-                   }
-                 })
-               }
-               -->
+   
  
-   </div>
-  </div>
+   </div>  
+  </div>--> 
   <div>
     <input type="button" @click="load" value="charger" :disabled="!drawn"/>
     <div v-if="!done">{{loaded}}</div>
@@ -57,51 +44,51 @@
 var L = require("leaflet")
 L.PixiOverlay = require('leaflet-pixi-overlay')
 // var lineReader = require('line-reader')
-import * as Highcharts from 'highcharts'
-import HighchartsExporting from 'highcharts/modules/exporting'
-// import HighchartsReact from 'highcharts-react-official'
- import HighchartsMore from 'highcharts/highcharts-more'
- import Stock from 'highcharts/modules/stock'
- import Data from 'highcharts/modules/data'
- import Accessibility from 'highcharts/modules/accessibility'
+// import * as Highcharts from 'highcharts'
+// import HighchartsExporting from 'highcharts/modules/exporting'
+// // import HighchartsReact from 'highcharts-react-official'
+//  import HighchartsMore from 'highcharts/highcharts-more'
+//  import Stock from 'highcharts/modules/stock'
+//  import Data from 'highcharts/modules/data'
+//  import Accessibility from 'highcharts/modules/accessibility'
 // import Highstock from 'highcharts/highstock'
 // import  Indicators from 'highcharts/indicators/indicators'
 //  import  Regression from 'highcharts/indicators/regressions'
- import jStat from 'jStat'
- function regression(arrWeight, arrHeight) {
-   let r, sy, sx, b, a, meanX, meanY;
-   r = jStat.corrcoeff(arrHeight, arrWeight);
-   sy = jStat.stdev(arrWeight);
-   sx = jStat.stdev(arrHeight);
-   meanY = jStat(arrWeight).mean();
-   meanX = jStat(arrHeight).mean();
-   b = r * (sy / sx);
-   a = meanY - meanX * b;
-   //Set up a line
-   let y1, y2, x1, x2;
-   x1 = jStat.min(arrHeight);
-   x2 = jStat.max(arrHeight);
-   y1 = a + b * x1;
-   y2 = a + b * x2;
-   return {
-     line: [
-       [x1, y1],
-       [x2, y2]
-     ],
-     r
-   };
-}
-if (typeof Highcharts === 'object') {
-    HighchartsExporting(Highcharts)
-    HighchartsMore(Highcharts) // init module
-    Stock(Highcharts)
-    Data(Highcharts)
-   Accessibility(Highcharts)
-   // Highstock(Highcharts)
-   // for regression
-//    Indicators(Highcharts)
-//    Regression(Highcharts)
-}
+//  import jStat from 'jStat'
+//  function regression(arrWeight, arrHeight) {
+//    let r, sy, sx, b, a, meanX, meanY;
+//    r = jStat.corrcoeff(arrHeight, arrWeight);
+//    sy = jStat.stdev(arrWeight);
+//    sx = jStat.stdev(arrHeight);
+//    meanY = jStat(arrWeight).mean();
+//    meanX = jStat(arrHeight).mean();
+//    b = r * (sy / sx);
+//    a = meanY - meanX * b;
+//    //Set up a line
+//    let y1, y2, x1, x2;
+//    x1 = jStat.min(arrHeight);
+//    x2 = jStat.max(arrHeight);
+//    y1 = a + b * x1;
+//    y2 = a + b * x2;
+//    return {
+//      line: [
+//        [x1, y1],
+//        [x2, y2]
+//      ],
+//      r
+//    };
+// }
+// if (typeof Highcharts === 'object') {
+//     HighchartsExporting(Highcharts)
+//     HighchartsMore(Highcharts) // init module
+//     Stock(Highcharts)
+//     Data(Highcharts)
+//    Accessibility(Highcharts)
+//    // Highstock(Highcharts)
+//    // for regression
+// //    Indicators(Highcharts)
+// //    Regression(Highcharts)
+// }
 // Highcharts.Point.prototype.highlight = function (event, popup) {
 //   event = this.series.chart.pointer.normalize(event);
 // //  this.onMouseOver(); // Show the hover marker
@@ -113,9 +100,9 @@ if (typeof Highcharts === 'object') {
 //   this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
 // };
 
-Highcharts.Pointer.prototype.reset = function () {
-  return undefined;
-};
+// Highcharts.Pointer.prototype.reset = function () {
+//   return undefined;
+// };
 
 // function syncExtremes (e) {
 //   console.log(e)
@@ -188,25 +175,25 @@ export default {
   			deltaLat: null,
   			deltaLng: null,
   			marker: null,
-  			graphs: {
-  			  EW: null,
-  			  NS: null,
-  			  MAGN: null
-  			},
-  			colors: {
-  			  EW: '#F00',
-  			  NS: '#00F',
-  			  MAGN: '#FF4500'
-  			},
+//   			graphs: {
+//   			  EW: null,
+//   			  NS: null,
+//   			  MAGN: null
+//   			},
+//   			colors: {
+//   			  EW: '#F00',
+//   			  NS: '#00F',
+//   			  MAGN: '#FF4500'
+//   			},
   			step: 1500,
   			keys: [],
   			count: 0,
   			dates: [],
-  			points: {
-          EW: null,
-          NS: null,
-          MAGN: null
-        },
+//   			points: {
+//           EW: null,
+//           NS: null,
+//           MAGN: null
+//         },
         selectedType: null,
 //   			files: {
 //   			  EW:'https://api.poleterresolide.fr/tio/ew_displ.json',
@@ -218,12 +205,11 @@ export default {
           NS: 'https://api.poleterresolide.fr/tio/ns_displ_div_4.json',
           MAGN: 'https://api.poleterresolide.fr/tio/magn_displ_div_4.json'
         },
-        quality: [],
-        values: [],
+//         quality: [],
+//         values: [],
   			done: false,
   			drawn: true,
-  			dones : [false, false, false],
-  			tooltip: ''
+  			dones : [false, false, false]
 		}
   },
   watch: {
@@ -259,9 +245,6 @@ export default {
           if (layer instanceof L.Circle) {
             _this.map.removeLayer(layer);
           }
-//           if (layer instanceof L.Polygon) {
-//             _this.map.removeLayer(layer);
-//           }
         })
       }
     },
@@ -271,9 +254,6 @@ export default {
       this.readJSON('EW')
       this.readJSON('NS')
       this.readJSON('MAGN')
-    },
-    dateHighchart (time) {
-      return moment.unix(time / 1000).format('ll')
     },
     displayPoints (line, step) {
       if (line >= this.MAGN.length) {
@@ -298,261 +278,6 @@ export default {
         _this.displayPoints(line + step, step)
       }, 0)
       
-//    this.MAGN.forEach(function (line) {
-//      line.forEach(function (col) {
-//        if (col[3] !== null) {
-//          L.marker([col[0], col[1]]).addTo(_this.map)
-//        }
-//      })
-//    })
-    },
-    highlight (e, type) {
-//       if (!this.graphs[type]) {
-//         this.tooltip = false
-//         return
-//       }
-        // console.log(e)
-        var chart,
-          point,
-          i,
-          event;
-        var _this = this
-        if (!this.graphs[type]) {
-          return false
-        }
-        event = this.graphs[type].pointer.normalize(e);
-        var point = this.graphs[type].series[0].searchPoint(event, true);
-        if (!point) {
-          return
-        }        
-        for (var key in this.graphs) {
-          var chart = this.graphs[key];
-          if (chart && typeof chart !== 'undefined') {
-            chart.xAxis[0].removePlotLine('highlight')
- 	          chart.xAxis[0].addPlotLine({
-             color: '#999999',
-             value:  point.x,
-             width: 1,
-             id: 'highlight'
-           })
-          }
-        }    
-    },
-//     unselect (e) {
-//       for (let i = 0; i < Highcharts.charts.length; ++i) {
-//         let chart = Highcharts.charts[i];
-//         let event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
-//         let point;
-//         for (let j = 0; j < chart.series.length && !point; ++j) {
-//           point = chart.series[j].searchPoint(event, true);
-//         }
-//         if (!point) return;
-       
-//         if (e.type === "mousemove") {
-//            point.onMouseOver();
-//           chart.xAxis[0].drawCrosshair(event, point); // Show the crosshair
-//         } else {
-//           point.onMouseOut();
-          
-//           chart.xAxis[0].hideCrosshair();
-//         }
-//         chart.tooltip.hide(point);
-//       }
-//     },
-//     updateExtremes ({ min, max }) {
-//       Highcharts.charts.forEach(function (chart) {
-//         console.log(chart)
-//         // machin pour recharger 
-//         if (chart && chart.xAxis) {
-//           chart.xAxis[0].setExtremes(min, max)
-//         }
-//       })
-//     },
-//     syncExtremes (e, type) {
-//       if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
-//         for (var tp in this.graphs) {
-//            var chart = this.graphs[tp]
-//             if (tp !== type) {
-//                 if (chart.xAxis[0].setExtremes) { // It is null while updating
-//                     chart.xAxis[0].setExtremes(
-//                         e.min,
-//                         e.max,
-//                         undefined,
-//                         false,
-//                         { trigger: 'syncExtremes' }
-//                     )
-//                 }
-//             }
-//          }
-//       }
-//     },
-    draw (type, row, col) {
-       var tab = this[type]
-       if (!tab || !tab[row] || !tab[row][col]) {
-         return false
-       }
-       tab = tab[row][col]
-       var index = this.keys.findIndex(tb => tb === 'quality')
-       var quality = tab[index]
-       this.quality[type] = quality
-       if (tab[index] === 0) {
-         console.log('Aucune valeur')
-         return
-       }
-       tab = tab.slice(this.keys.length)
-       
-       var data = []
-     
-       var min = null
-       var max = null
-       var delta = []
-       var plotlines = []
-       var regData = []
-       var dates = []
-       // fill data
-       this.dates.forEach (function (date, n) {
-         if (!isNaN(tab[n]) && tab[n] !== null) {
-             data.push([
-               date, 
-               tab[n],
-               tab[n] + quality,
-               tab[n] - quality,
-               tab[n]
-            ])
-            dates.push(date)
-            regData.push(tab[n])
-            if (min === null || min > tab[n]) {
-              min = tab[n]
-            } 
-            if (max === null || max < tab[n]) {
-              max = tab[n]
-            } 
-            plotlines.push({
-              color: '#ccd6eb',
-              value: date,
-              width: 1,
-              id: n
-            })
-         }
-       })
-       var reg = regression(regData, dates)
-       if (data.length === 0) {
-         return
-       }
-       var _this = this
-      // var chartIndex = Object.keys(this.graphs).findIndex(key => key === type)
-       quality = Math.round(quality * 100) / 100
-       var color = this.colors[type]
-       var lightColor = this.$shadeColor(color, 0.4)
-       this.graphs[type] = Highcharts.chart('graph' + type, {
-         chart: {
-           zoomType: 'x'
-         },
-         title: 'Test',
-         height: '32%',
-         credits: {
-           enabled:false
-         },
-         legend: {
-           enabled: false
-         },
-         exporting: {
-           enabled: false
-         },
-         tooltip: {
-           enabled: true,
-           formatter (e) {
-             if (!this.point) {
-               return false
-             }
-             var values = []
-             for (var key in _this.graphs) {
-               var chart = _this.graphs[key];
-			          if (chart && typeof chart !== 'undefined') {
-			            var pt = chart.series[0].points.find(el => el.x === this.point.x )
-			            values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key + ': ' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
-			          }
-			          if (key !== type) {
-			            chart.tooltip.hide();
-			          }
-             }
-             var s = '<b>' + moment.unix(this.point.x/ 1000).format('ll') + '</b><br />'
-             return s + values.join('<br />')
-           },
-           shared: false
-         },
-         plotOptions: {
-//            boxplot: {
-//                centerInCategory: true,
-//                boxDashStyle: 'transparent',
-//                fillColor: 'none',
-//                lineWidth: 1,
-//                medianColor: color,
-//                medianDashStyle: 'solid',
-//                medianWidth: 1,
-//                medianLength: '100%',
-//                stemColor: color,
-//                stemDashStyle: 'solid',
-//                stemWidth: 1,
-//                whiskerColor: color,
-//                whiskerWidth: 1
-//            }
-       },
-         xAxis: {
-            type: 'datetime',
-            lineColor:'#666',
-            events: {
-//               setExtremes (e) {
-//                 _this.syncExtremes(e, type)
-//               },
-//               afterSetExtremes (e) {
-//                 _this.updateExtremes(e)
-//               }
-            },
-            gridLineWidth: 0,
-            plotLines: plotlines,
-          },
-          yAxis: {
-              title: {
-                  text: type
-              },
-              min: min,
-              max: max
-          },
-          series: [{
-              name: type,
-              color: color,
-              type: 'ohlc',
-              id: type,
-              zIndex:10,
-              data:data,
-              lineWidth: 1
-//               states: {
-//                   hover: {
-//                       lineWidthPlus: 2
-//                   }
-//               },
-              
-          }, {
-            name: 'regression',
-            color: color,
-            data: reg.line,
-            lineWidth: 1,
-           // zIndex: -1,
-            enableMouseTracking: false
-          }
-//           , {
-//             type: 'linearRegression',
-//             color: color,
-//             linkedTo: type,
-//             lineWidth: 1,
-//             zIndex: -1,
-//             params: {
-//               period: 4
-//             }          
-//          }
-          ]
-       })
     },
     initMap () {
       var container = this.$el.querySelector('#gdmMap');
@@ -579,18 +304,6 @@ export default {
           }
         })
         _this.marker.setLatLng(e.latlng)
-//         var x = Math.floor(_this.col * (e.latlng.lng - _this.bbox.minlon) / _this.deltaLng)
-//         var y = _this.row - Math.ceil(_this.row * (e.latlng.lat - _this.bbox.minlat) / (_this.deltaLat))
-//         var tab = null
-//         if (_this.EW && _this.EW[y] && _this.EW[y][x]) {
-//           tab = _this.EW[y][x]
-//           _this.marker.setLatLng([tab[0], tab[1]])
-//         }
-//         console.log('y=', y)
-//         console.log('x=', x)
-//         for(var key in _this.colors) {
-//           _this.draw(key, y, x)
-//         }
       })
       this.load()
     },
@@ -599,6 +312,7 @@ export default {
       
       var tab = this.MAGN
       if (!tab || !tab[line] || !tab[line][col]) {
+        console.log('return')
         return false
       }
       this.ptValues = {
@@ -611,38 +325,8 @@ export default {
           NS: this.NS[line][col],
           MAGN: this.MAGN[line][col]
       }
+      console.log('set')
       this.ptValues = values
-      return
-      
-      var graphs = this.graphs
-      var colors = this.colors
-      var self = this
-      ['EW', 'NS', 'MAGN'].forEach(function (key) {
-        if (graphs[key]) {
-          graphs[key].destroy()
-          graphs[key] = null
-        }
-      })
-      if (!this.MAGN[line] || !this.MAGN[line][col]) {
-        return
-      }
-      this.infos = {
-          lat: this.MAGN[line][col][0],
-          lng: this.MAGN[line][col][1],
-          height: this.MAGN[line][col][2]
-      }
-//       var x = Math.floor(_this.col * (e.latlng.lng - _this.bbox.minlon) / _this.deltaLng)
-//       var y = _this.row - Math.ceil(_this.row * (e.latlng.lat - _this.bbox.minlat) / (_this.deltaLat))
-//       var tab = null
-//       if (_this.EW && _this.EW[y] && _this.EW[y][x]) {
-//         tab = _this.EW[y][x]
-//         _this.marker.setLatLng([tab[0], tab[1]])
-//       }
-//       console.log('y=', y)
-//       console.log('x=', x)
-      for(var key in colors) {
-        this.draw(key, line, col)
-      }
     },
     readJSON (key) {
       var _this = this
