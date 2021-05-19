@@ -43,89 +43,7 @@
 <script>
 var L = require("leaflet")
 L.PixiOverlay = require('leaflet-pixi-overlay')
-// var lineReader = require('line-reader')
-// import * as Highcharts from 'highcharts'
-// import HighchartsExporting from 'highcharts/modules/exporting'
-// // import HighchartsReact from 'highcharts-react-official'
-//  import HighchartsMore from 'highcharts/highcharts-more'
-//  import Stock from 'highcharts/modules/stock'
-//  import Data from 'highcharts/modules/data'
-//  import Accessibility from 'highcharts/modules/accessibility'
-// import Highstock from 'highcharts/highstock'
-// import  Indicators from 'highcharts/indicators/indicators'
-//  import  Regression from 'highcharts/indicators/regressions'
-//  import jStat from 'jStat'
-//  function regression(arrWeight, arrHeight) {
-//    let r, sy, sx, b, a, meanX, meanY;
-//    r = jStat.corrcoeff(arrHeight, arrWeight);
-//    sy = jStat.stdev(arrWeight);
-//    sx = jStat.stdev(arrHeight);
-//    meanY = jStat(arrWeight).mean();
-//    meanX = jStat(arrHeight).mean();
-//    b = r * (sy / sx);
-//    a = meanY - meanX * b;
-//    //Set up a line
-//    let y1, y2, x1, x2;
-//    x1 = jStat.min(arrHeight);
-//    x2 = jStat.max(arrHeight);
-//    y1 = a + b * x1;
-//    y2 = a + b * x2;
-//    return {
-//      line: [
-//        [x1, y1],
-//        [x2, y2]
-//      ],
-//      r
-//    };
-// }
-// if (typeof Highcharts === 'object') {
-//     HighchartsExporting(Highcharts)
-//     HighchartsMore(Highcharts) // init module
-//     Stock(Highcharts)
-//     Data(Highcharts)
-//    Accessibility(Highcharts)
-//    // Highstock(Highcharts)
-//    // for regression
-// //    Indicators(Highcharts)
-// //    Regression(Highcharts)
-// }
-// Highcharts.Point.prototype.highlight = function (event, popup) {
-//   event = this.series.chart.pointer.normalize(event);
-// //  this.onMouseOver(); // Show the hover marker
-// //   if (popup) {
-// //     this.series.chart.tooltip.refresh(this); // Show the tooltip
-// //   } else {
-// //     this.series.chart.tooltip.hide()
-// //   }
-//   this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
-// };
-
-// Highcharts.Pointer.prototype.reset = function () {
-//   return undefined;
-// };
-
-// function syncExtremes (e) {
-//   console.log(e)
-//   var thisChart = this.chart;
-
-//   if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
-//     Highcharts.each(Highcharts.charts, function(chart) {
-//       console.log(chart)
-//       if (chart !== thisChart) {
-//         if (chart.xAxis[0].setExtremes) { // It is null while updating
-//           chart.xAxis[0].setExtremes(
-//             e.min,
-//             e.max,
-//             undefined,
-//             false, {
-//               trigger: 'syncExtremes'
-//             }
-//           );
-//         }
-//       }
-//     });
-//   }
-// }
+// var parse = require('wellknown')
 import { Icon } from 'leaflet';
 delete Icon.Default.prototype._getIconUrl;
 Icon.Default.mergeOptions({
@@ -134,19 +52,8 @@ Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 import TioGraph from './tio-graph.vue'
-// Highcharts.Point.prototype.highlight = function(event) {
-//   event = this.series.chart.pointer.normalize(event);
-//   console.log(event)
-// //   this.onMouseOver(); // Show the hover marker
-// //   this.series.chart.tooltip.refresh(this); // Show the tooltip
-// //   this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
-// };
-// import markerIconPng from "leaflet/dist/images/marker-icon.png"
-// var errorbar from 'highcharts/indicators/indicators'
-// indicators(Highcharts)
-
+import TileReader from './tile-reader.js'
 import moment from 'moment'
-// import reader from './file-reader.js'
 export default {
   name: 'GdmMapTio',
   components: {
@@ -209,7 +116,13 @@ export default {
 //         values: [],
   			done: false,
   			drawn: true,
-  			dones : [false, false, false]
+  			dones : [false, false, false],
+  			determinant: null,
+  			coordSystem: {
+  			  origin: null,
+  			  u: null,
+  			  v: null
+  			}
 		}
   },
   watch: {
@@ -229,6 +142,7 @@ export default {
      // this.drawOld()
        // this.readFile(0)
       this.initMap()
+      TileReader.initialize()
 //       this.readJSON('EW')
 //       this.readJSON('NS')
 //       this.readJSON('MAGN')
@@ -255,7 +169,44 @@ export default {
       this.readJSON('NS')
       this.readJSON('MAGN')
     },
+    changeFrame (lat, lng) {
+      var line = (this.coordSystem.u.dLng * (lat - this.coordSystem.origin.lat) - this.coordSystem.u.dLat * (lng- this.coordSystem.origin.lng)) / this.determinant
+      var col = (this.coordSystem.v.dLat * (lng- this.coordSystem.origin.lng) - this.coordSystem.v.dLng * (lat - this.coordSystem.origin.lat)) / this.determinant
+      return {line: Math.round(line), col: Math.round(col)}
+    },
+    computeCoordSystem () {
+        var lastLine = this.MAGN.length - 1
+        var lastCol = this.MAGN[0].length - 1
+       // L.marker( [this.MAGN[0][0][0], this.MAGN[0][0][1]]).addTo(this.map)
+        this.coordSystem.origin = {lat: this.MAGN[0][0][0], lng: this.MAGN[0][0][1]}
+        // column
+        this.coordSystem.u = {
+          dLat: (this.MAGN[0][lastCol][0] - this.MAGN[0][0][0]) / lastCol,
+          dLng: (this.MAGN[0][lastCol][1] - this.MAGN[0][0][1]) / lastCol
+        }
+        // line
+        this.coordSystem.v = {
+          dLat: (this.MAGN[lastLine][0][0] - this.MAGN[0][0][0]) / lastLine,
+          dLng: (this.MAGN[lastLine][0][1] - this.MAGN[0][0][1]) / lastLine
+
+        }
+        this.determinant = this.coordSystem.u.dLng * this.coordSystem.v.dLat - this.coordSystem.u.dLat * this.coordSystem.v.dLng
+        // test 
+        // line 12 colone 46
+        var lat = this.coordSystem.origin.lat + 46 * this.coordSystem.u.dLat + 12 * this.coordSystem.v.dLat
+        var lng = this.coordSystem.origin.lng + 46 * this.coordSystem.u.dLng + 12 * this.coordSystem.v.dLng
+        L.marker([lat, lng]).addTo(this.map)
+        L.circle([this.MAGN[12][46][0], this.MAGN[12][46][1]], {weight:1, radius: 5, color: 'red'}).addTo(this.map)
+//         L.marker([this.MAGN[lastLine][0][0], this.MAGN[lastLine][0][1]]).addTo(this.map)
+        
+//         L.marker([this.MAGN[0][lastCol][0], this.MAGN[0][lastCol][1]]).addTo(this.map)
+//         L.marker([this.MAGN[lastLine][lastCol][0], this.MAGN[lastLine][lastCol][1]]).addTo(this.map)
+        console.log(this.coordSystem)
+    },
     displayPoints (line, step) {
+      // afficher les 4 points
+      
+      
       if (line >= this.MAGN.length) {
         this.drawn = true
         console.log('superieur')
@@ -296,14 +247,18 @@ export default {
           alert('En cours de lecture...')
         }
         // remove charts
-        ['EW', 'NS', 'MAGN'].forEach(function (key) {
-          console.log(key)
-          if (_this.graphs[key]) {
-            _this.graphs[key].destroy()
-            _this.graphs[key] = null
-          }
-        })
-        _this.marker.setLatLng(e.latlng)
+//         ['EW', 'NS', 'MAGN'].forEach(function (key) {
+//           console.log(key)
+//           if (_this.graphs[key]) {
+//             _this.graphs[key].destroy()
+//             _this.graphs[key] = null
+//           }
+//         })
+        var position = _this.changeFrame(e.latlng.lat, e.latlng.lng)
+        console.log(position)
+        // _this.marker.setLatLng(e.latlng)
+        var latlng = [_this.MAGN[position.line][position.col][0], _this.MAGN[position.line][position.col][1]]
+        _this.marker.setLatLng(latlng)
       })
       this.load()
     },
@@ -343,7 +298,10 @@ export default {
         this.bbox = response.body.bbox
         console.log(response.body.dates)
         this.dates = response.body.dates.map(dt => moment( dt, 'YYYYMMDD').valueOf())
-        
+//         this.poly = response.body.bbox_wkt
+//         this.polyLayer =  L.geoJson(parse(response.body.bbox_wkt));
+//         this.polyLayer.addTo(this.map)
+//         console.log(this.poly)
          var latlngs = [
           [this.bbox.minlat, this.bbox.minlon],
           [this.bbox.minlat, this.bbox.maxlon],
@@ -351,6 +309,7 @@ export default {
           [this.bbox.maxlat, this.bbox.minlon],
           [this.bbox.minlat, this.bbox.minlon]
         ]
+        
         this.deltaLat = this.bbox.maxlat - this.bbox.minlat
         this.deltaLng = this.bbox.maxlon - this.bbox.minlon
        this.bboxLayer.setLatLngs(latlngs)
@@ -372,6 +331,7 @@ export default {
           this.MAGN = response.body.data
           var marker = null
           var _this = this
+          this.computeCoordSystem()
           this.displayPoints(0, 3)
 //           this.MAGN.forEach(function (line) {
 //             line.forEach(function (col) {
@@ -383,9 +343,9 @@ export default {
           this.$set(this.dones, 2, true)
           break
         }
-        if (response.body.DDSS_ID === 'EW_DISPLACEMENT_TIMESERIES') {
-          this.EW = response.body.data
-        }
+//         if (response.body.DDSS_ID === 'EW_DISPLACEMENT_TIMESERIES') {
+//           this.EW = response.body.data
+//         }
         
         
       })
