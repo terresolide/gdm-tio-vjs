@@ -142,8 +142,12 @@ export default {
      // this.drawOld()
        // this.readFile(0)
       this.initMap()
-      TileSystem.load('http://api.formater/exemples/tio/tiled/root.json')
-      .then( geojson => L.geoJSON(geojson).addTo(this.map))
+      var _this = this
+      TileSystem.load('http://api.formater/exemples/tio/tiled')
+      .then( geojson => L.geoJSON(geojson).addTo(this.map).on('click', function (e) {
+        TileSystem.searchData(e.latlng.lat, e.latlng.lng)
+        .then(resp => console.log(resp))
+      }))
 //       this.readJSON('EW')
 //       this.readJSON('NS')
 //       this.readJSON('MAGN')
