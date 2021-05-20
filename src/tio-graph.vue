@@ -1,12 +1,12 @@
 <template>
 <div>
- <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
+ <div v-show="hasValues" style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">--DIVERS INFOS---
        <div>@todo</div>
       </div>
-      <div id="graph_ew" style="height:220px;" @mousemove="highlight($event, 'EW')"></div>
-      <div id="graph_ns" style="height:220px;" @mousemove="highlight($event, 'NS')">N</div>
-      <div id="graph_magn" style="height:220px;" @mousemove="highlight($event, 'MAGN')">M</div>
+      <div id="graph_ew" style="height:220px;" @mousemove="highlight($event, 'ew')"></div>
+      <div id="graph_ns" style="height:220px;" @mousemove="highlight($event, 'ns')"></div>
+      <div id="graph_magn" style="height:220px;" @mousemove="highlight($event, 'magn')"></div>
       <div>-- the end --</div>
 </div>
 </div>
@@ -81,6 +81,7 @@ export default {
     return {
       quality: {},
       graphs: {},
+      hasValues: false,
       colors:{
         ew: '#F00',
         ns: '#00F',
@@ -165,8 +166,10 @@ export default {
       this.quality[type] = quality
       if (tab[index] === 0) {
         console.log('Aucune valeur')
+        this.hasValues = false
         return
       }
+      this.hasValues = true
       tab = tab.slice(this.keys.length)
       
       var data = []

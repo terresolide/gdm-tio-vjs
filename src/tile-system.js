@@ -16,8 +16,6 @@ export default {
   active: null,
   initialize (data) {
     this.computeCoordSystem(data)
-    // read source
-    // this.$http = http
   },
   initializeTile (tile, key, data) {
     if (!this.tiles[tile]) {
@@ -36,7 +34,7 @@ export default {
     return new Promise((successCallback, failureCallback) => {
       Vue.http.get(_dir + 'root.json')
       .then(resp => {
-         this.initialize(resp.body),
+         this.initialize(resp.body)
          successCallback(resp.body)},
          resp => failureCallback(resp))
     })
@@ -60,7 +58,9 @@ export default {
         .then(resp2 => {
           _this.initializeTile(tile, 'magn', resp2.body)
           _this.tiles[tile].loaded = true
-          successCallback()
+          if (successCallback) {
+            successCallback()
+          }
           
          })
     })
