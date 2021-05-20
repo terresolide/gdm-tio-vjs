@@ -4,9 +4,9 @@
       <div style="ming-height:150px;">--DIVERS INFOS---
        <div>@todo</div>
       </div>
-      <div id="graphEW" style="height:220px;" @mousemove="highlight($event, 'EW')"></div>
-      <div id="graphNS" style="height:220px;" @mousemove="highlight($event, 'NS')">N</div>
-      <div id="graphMAGN" style="height:220px;" @mousemove="highlight($event, 'MAGN')">M</div>
+      <div id="graph_ew" style="height:220px;" @mousemove="highlight($event, 'EW')"></div>
+      <div id="graph_ns" style="height:220px;" @mousemove="highlight($event, 'NS')">N</div>
+      <div id="graph_magn" style="height:220px;" @mousemove="highlight($event, 'MAGN')">M</div>
       <div>-- the end --</div>
 </div>
 </div>
@@ -82,9 +82,9 @@ export default {
       quality: {},
       graphs: {},
       colors:{
-        EW: '#F00',
-        NS: '#00F',
-        MAGN: '#FF4500'
+        ew: '#F00',
+        ns: '#00F',
+        magn: '#FF4500'
       }
     }
   },
@@ -130,9 +130,9 @@ export default {
     draw (values) {
       console.log(values)
       // remove old graphs
-      this.drawOne('EW', values.EW)
-      this.drawOne('NS', values.NS)
-      this.drawOne('MAGN', values.MAGN)
+      this.drawOne('ew', values.ew)
+      this.drawOne('ns', values.ns)
+      this.drawOne('magn', values.magn)
 //       ['EW', 'NS', 'MAGN'].forEach(function (key) {
 //         console.log(key)
 //         console.log(_this.graphs)
@@ -149,6 +149,7 @@ export default {
 //       })
     },
     drawOne (type, tab) {
+
       // remove graph if exists
       if (this.graphs[type]) {
         this.graphs[type].destroy()
@@ -211,7 +212,7 @@ export default {
       quality = Math.round(quality * 100) / 100
       var color = this.colors[type]
       var lightColor = this.$shadeColor(color, 0.4)
-      this.graphs[type] = Highcharts.chart('graph' + type, {
+      this.graphs[type] = Highcharts.chart('graph_' + type, {
         chart: {
           zoomType: 'x'
         },

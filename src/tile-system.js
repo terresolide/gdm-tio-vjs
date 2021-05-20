@@ -44,7 +44,12 @@ export default {
   loadTile (tile) {
     var _this = this
     return new Promise((successCallback, failureCallback) => {
-      
+      if (_this.tiles[tile] && _this.tiles[tile].loaded) {
+        if (successCallback) {
+          successCallback()
+        }
+        return true
+      }
       Vue.http.get(_this.dir + 'ns_displ_' +  tile + '.json')
         .then(resp => {
            _this.initializeTile(tile, 'ns', resp.body)
@@ -55,9 +60,8 @@ export default {
         .then(resp2 => {
           _this.initializeTile(tile, 'magn', resp2.body)
           _this.tiles[tile].loaded = true
-          if (successCallback) {
-            successCallback()
-          }
+          successCallback()
+          
          })
     })
 
@@ -86,31 +90,53 @@ export default {
     var pos = this.changeFrame(lat, lng)
     
     var _this = this
-    return new Promise((successCallback, failureCallback) => {
-      if (!pos) {
-        if (successCallback) {
-           successCallback(false)
-        }
-        return false
-      }
-      if (_this.tiles[pos.tile] && _this.tiles[pos.tile].loaded) {
-        console.log(_this.tiles[pos.tile])
-        if (successCallback) {
-          successCallback( {
-            'ew': _this.tiles[pos.tile]['ew'][pos.line][pos.col],
-            'ns': _this.tiles[pos.tile]['ns'][pos.line][pos.col],
-            'magn': _this.tiles[pos.tile]['magn'][pos.line][pos.col]
-           })
-        }
-      } else {
+//    return new Promise((successCallback, failureCallback) => {
+//      if (!pos) {
+//        if (successCallback) {
+//           successCallback(false)
+//        }
+//        return false
+//      }
+//      if (_this.tiles[pos.tile] && _this.tiles[pos.tile].loaded) {
+//        console.log(_this.tiles[pos.tile])
+//        if (successCallback) {
+//          successCallback( {
+//            'ew': _this.tiles[pos.tile]['ew'][pos.line][pos.col],
+//            'ns': _this.tiles[pos.tile]['ns'][pos.line][pos.col],
+//            'magn': _this.tiles[pos.tile]['magn'][pos.line][pos.col]
+//           })
+//        }
+ //     } else {
 //        var callback = function () {
 //          return _this.searchData(lat, lng, successCallback, failureCallback)
 //        }
-        _this.loadTile(pos.tile).then(
-             resp => {return _this.searchData(lat, lng)}
+      
+      return  this.loadTile(pos.tile).then(
+             resp => {return {
+               'ew': this.tiles[pos.tile]['ew'][pos.line][pos.col],
+               'ns': this.tiles[pos.tile]['ns'][pos.line][pos.col],
+               'magn': this.tiles[pos.tile]['magn'][pos.line][pos.col]
+              }}
         )
-      }
-    })
+//      }
+//    }).then(resp => {
+//      console.log('last step')
+//      if (_this.tiles[pos.tile] && _this.tiles[pos.tile].loaded) {
+//        if (successCallback) {
+//        successCallback( {
+//          'ew': _this.tiles[pos.tile]['ew'][pos.line][pos.col],
+//          'ns': _this.tiles[pos.tile]['ns'][pos.line][pos.col],
+//          'magn': _this.tiles[pos.tile]['magn'][pos.line][pos.col]
+//         })
+//        }
+//        return {
+//            'ew': _this.tiles[pos.tile]['ew'][pos.line][pos.col],
+//            'ns': _this.tiles[pos.tile]['ns'][pos.line][pos.col],
+//            'magn': _this.tiles[pos.tile]['magn'][pos.line][pos.col]
+//           }
+//       }
+//      return false
+//    })
   },
   computeCoordSystem (data) {
       this.lines = data.properties.nb_lines
