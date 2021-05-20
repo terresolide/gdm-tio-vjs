@@ -16,7 +16,7 @@ import {VueTools} from 'formater-commons-components-vjs'
 Vue.use(VueTools)
 
 import GdmMapTio from './gdm-map-tio.vue'
-import 'leaflet/dist/leaflet.css';
+import 'leaflet/dist/leaflet.css'
 ljs.addAliases({
   dep: [
      // font-awesome

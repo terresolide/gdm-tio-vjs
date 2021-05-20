@@ -52,7 +52,7 @@ Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 import TioGraph from './tio-graph.vue'
-import TileReader from './tile-reader.js'
+import TileSystem from './tile-system.js'
 import moment from 'moment'
 export default {
   name: 'GdmMapTio',
@@ -142,7 +142,8 @@ export default {
      // this.drawOld()
        // this.readFile(0)
       this.initMap()
-      TileReader.initialize()
+      TileSystem.load('http://api.formater/exemples/tio/tiled/root.json')
+      .then( geojson => L.geoJSON(geojson).addTo(this.map))
 //       this.readJSON('EW')
 //       this.readJSON('NS')
 //       this.readJSON('MAGN')
