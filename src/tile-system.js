@@ -36,7 +36,7 @@ export default {
    // this.searchValidPoints(tile, key)
     if (!this.tiles[tile].loaded && this.tiles[tile].ns && this.tiles[tile].ew && this.tiles[tile].magn) {
       this.tiles[tile].loaded = true
-      this.searchValidPoints(tile, key)
+      this.searchValidPoints(tile, 'ns')
     }
   },
   searchValidPoints (tile, key) {
@@ -44,7 +44,7 @@ export default {
     this.tiles[tile][key].forEach(function (line) {
       line.forEach(function (col) {
         if (col[3] !== null) {
-          points.push([col[0], col[1]])
+          points.push({pt:[col[0], col[1]], value:col[66]})
         }
       })
     })
@@ -75,24 +75,30 @@ export default {
         resp => new Promise(resolve => { // <== create a promise here
             setTimeout(function() {
               _this.loadTile('ew', tile).then(resp => {resolve()})
-            }, 4000)})
+            }, 10)})
     ).then(
         resp => new Promise(resolve => { // <== create a promise here
           setTimeout(function() {
             _this.loadTile('magn', tile).then(resp => {resolve()})
-          }, 4000)})
+          }, 10)})
     ).then(
         resp => {
-          if (tileColumn < this.tileCols) {
-            var next = function () {
-              _this.loadAll(tileLine, tileColumn + 1)
+          var _tile = tile
+          while (_this.tiles[_tile] && _this.tiles[_tile].loaded) {
+             
+            if (tileColumn < _this.tileCols) {
+              tileColumn++
+            } else {
+              tileLine++
+              tileColumn = 0
             }
-          } else {
-            var next = function () {
-              _this.loadAll(tileLine + 1, 0)
-            }
+            _tile = tileLine.toString().padStart(3, '0') + '_' + tileColumn.toString().padStart(3, '0')
           }
-          setTimeout(next, 4000)
+         
+          var next = function () {
+            _this.loadAll(tileLine, tileColumn )
+          }
+          setTimeout(next, 10)
         }
     )
     

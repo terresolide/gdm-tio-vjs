@@ -84,7 +84,10 @@ export default {
   			keys: [],
   			dates: [],
   			searching: false,
-  			iconPoint: null
+  			iconRed: null,
+  			iconBlue: null,
+  			iconGrey: null,
+  			arrowIcon: null
 		}
   },
 //   watch: {
@@ -111,31 +114,47 @@ export default {
     },
     initMap () {
       var container = this.$el.querySelector('#gdmMap');
-      this.map = L.map( container, {scrollWheelZoom: false}).setView([51.505, -0.09], 2);
+      this.map = L.map( container, {scrollWheelZoom: true}).setView([51.505, -0.09], 2);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
         preferCanvas: true
       }).addTo(this.map);
+      this.arrowIcon = L.icon({
+        iconUrl: require('./assets/img/arrow.png'),
+        iconSize: [30, 30],
+        iconAnchor: [0, 30]
+      })
       this.marker = L.marker([4, 50])
       this.marker.addTo(this.map)
-      this.iconPoint = L.icon({
-        iconUrl: require('./assets/img/point.png'),
+      this.iconRed = L.icon({
+        iconUrl: require('./assets/img/pointRed.png'),
         iconSize: [1, 1],
         iconAnchor: [0, 0],
       })
+      this.iconGrey = L.icon({
+        iconUrl: require('./assets/img/pointGrey.png'),
+        iconSize: [1, 1],
+        iconAnchor: [0, 0],
+      })
+      this.iconBlue = L.icon({
+        iconUrl: require('./assets/img/pointBlue.png'),
+        iconSize: [1, 1],
+        iconAnchor: [0, 0],
+      })
+      
       this.markersCanvas = new L.MarkersCanvas({opacity: 0.1})
       this.markersCanvas.addTo(this.map)
       var _this = this
-      this.map.on('zoomend', function (e) {
-         console.log(e)
-         console.log(this.getZoom())
-         if (this.getZoom() < 14) {
-          _this.markersCanvas.setOptions({opacity:0.1})
-         } else {
-           _this.markersCanvas.setOptions({opacity:1})
-         }
-      })
+//       this.map.on('zoomend', function (e) {
+//          console.log(e)
+//          console.log(this.getZoom())
+//          if (this.getZoom() < 14) {
+//           _this.markersCanvas.setOptions({opacity:0.1})
+//          } else {
+//            _this.markersCanvas.setOptions({opacity:1})
+//          }
+//       })
      
       // this.marker.setIcon(this.iconPoint)
     },
@@ -150,7 +169,14 @@ export default {
       var _this = this
       var markers = []
       data.forEach(function (pos) {
-        var marker = L.marker(pos, {icon: _this.iconPoint})
+        var marker = L.marker(pos.pt, {icon: _this.iconBlue})
+//         if (pos.value > 0.5) {
+//           var marker = L.marker(pos.pt, {icon: _this.iconRed, opacity: Math.max(1, pos.value / 5)})
+//         } else if (pos.value < 0.5) {
+//           var marker = L.marker(pos.pt, {icon: _this.iconBlue, opacity: Math.max(1, pos.value / (-5))})
+//         } else {
+//           var marker = L.marker(pos.pt, {icon: _this.iconGrey})
+//         }
         markers.push(marker)
       })
       this.markersCanvas.addMarkers(markers)

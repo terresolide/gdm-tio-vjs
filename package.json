@@ -1,6 +1,6 @@
 {
   "name": "gdm-tio-vjs",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Display temporal serie",
   "production": {
     "url": "https://cdn.jsdelivr.net/gh/terresolide"

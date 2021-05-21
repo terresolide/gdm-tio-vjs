@@ -1,13 +1,14 @@
 <template>
 <div>
- <div v-show="hasValues" style="width:50%;margin-left:50%;height:600px;position:relative;" >
-      <div style="ming-height:150px;">--DIVERS INFOS---
+ <div v-show="hasValues" class="graph-container" >
+      <div style="ming-height:150px;margin: 0px 10px;">
+       <h4>DIVERS INFOS</h4>
        <div>@todo</div>
       </div>
       <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')"></div>
       <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')"></div>
       <div id="graph_magn" :style="{height:height + 'px'}" @mousemove="highlight($event, 'magn')"></div>
-      <div>-- the end --</div>
+      
 </div>
 </div>
 </template>
@@ -265,7 +266,7 @@ export default {
               var chart = _this.graphs[key];
                if (chart && typeof chart !== 'undefined') {
                  var pt = chart.series[0].points.find(el => el.x === this.point.x )
-                 values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key + ': ' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
+                 values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
                }
                if (key !== type) {
                  chart.tooltip.hide();
@@ -293,7 +294,7 @@ export default {
          },
          yAxis: {
              title: {
-                 text: type
+                 text: type.toUpperCase()
              },
              min: min,
              max: max
@@ -319,3 +320,14 @@ export default {
   }
 }
 </script>
+<style>
+.graph-container {
+    width:50%;
+    margin-left:50%;
+    min-height:600px;
+    position:relative;
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+</style>
