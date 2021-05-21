@@ -124,8 +124,19 @@ export default {
         iconSize: [1, 1],
         iconAnchor: [0, 0],
       })
-      this.markersCanvas = new L.MarkersCanvas()
+      this.markersCanvas = new L.MarkersCanvas({opacity: 0.1})
       this.markersCanvas.addTo(this.map)
+      var _this = this
+      this.map.on('zoomend', function (e) {
+         console.log(e)
+         console.log(this.getZoom())
+         if (this.getZoom() < 14) {
+          _this.markersCanvas.setOptions({opacity:0.1})
+         } else {
+           _this.markersCanvas.setOptions({opacity:1})
+         }
+      })
+     
       // this.marker.setIcon(this.iconPoint)
     },
     initTiles () {

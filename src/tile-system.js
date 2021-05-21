@@ -1,6 +1,11 @@
 import Vue from 'vue'
 import VueResource from 'vue-resource';
 Vue.use(VueResource)
+function later(delay) {
+    return new Promise(function(resolve) {
+        return setTimeout(resolve, delay);
+    });
+}
 export default {
   root: null,
   lines: 0,
@@ -60,23 +65,34 @@ export default {
     })
   },
   loadAll (tileLine, tileColumn) {
-    if (tileLine > this.tileLines && tileColumn > this.tileCols) {
+    if (tileLine > this.tileLines) {
       return
     }
     var _this = this
     var tile = tileLine.toString().padStart(3, '0') + '_' + tileColumn.toString().padStart(3, '0')
     this.loadTile('ns', tile)
     .then(
-        resp => { return _this.loadTile('ew', tile)}
+        resp => new Promise(resolve => { // <== create a promise here
+            setTimeout(function() {
+              _this.loadTile('ew', tile).then(resp => {resolve()})
+            }, 4000)})
     ).then(
-        resp => {return _this.loadTile('magn', tile)}
+        resp => new Promise(resolve => { // <== create a promise here
+          setTimeout(function() {
+            _this.loadTile('magn', tile).then(resp => {resolve()})
+          }, 4000)})
     ).then(
         resp => {
           if (tileColumn < this.tileCols) {
-            this.loadAll(tileLine, tileColumn + 1)
+            var next = function () {
+              _this.loadAll(tileLine, tileColumn + 1)
+            }
           } else {
-            this.loadAll(tileLine + 1, 0)
+            var next = function () {
+              _this.loadAll(tileLine + 1, 0)
+            }
           }
+          setTimeout(next, 4000)
         }
     )
     
