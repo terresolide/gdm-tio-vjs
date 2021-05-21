@@ -41,7 +41,7 @@
 
 <script>
 var L = require("leaflet")
-L.markersCanvas = require('leaflet-markers-canvas')
+require('leaflet-markers-canvas')
 // L.PixiOverlay = require('leaflet-pixi-overlay')
 // var parse = require('wellknown')
 import { Icon } from 'leaflet';
@@ -68,7 +68,6 @@ export default {
           type: String,
           default: 'http://api.formater/exemples/tio/tiled'
       }
-      
   },
   data () {
 		return {
@@ -84,7 +83,8 @@ export default {
   			polygon: null,
   			keys: [],
   			dates: [],
-  			searching: false
+  			searching: false,
+  			iconPoint: null
 		}
   },
 //   watch: {
@@ -119,60 +119,80 @@ export default {
       }).addTo(this.map);
       this.marker = L.marker([4, 50])
       this.marker.addTo(this.map)
+      this.iconPoint = L.icon({
+        iconUrl: require('./assets/img/point.png'),
+        iconSize: [1, 1],
+        iconAnchor: [0, 0],
+      })
+      this.markersCanvas = new L.MarkersCanvas()
+      this.markersCanvas.addTo(this.map)
+      // this.marker.setIcon(this.iconPoint)
     },
     initTiles () {
       var _this = this
-      TileSystem.load(this.directory)
-      .then( geojson => {
-        var bbox = geojson.properties.bbox
-        var latlngs = [
-           [bbox.minlat, bbox.minlon],
-           [bbox.minlat, bbox.maxlon],
-           [bbox.maxlat, bbox.maxlon],
-           [bbox.maxlat, bbox.minlon],
-           [bbox.minlat, bbox.minlon]
-        ]
-        _this.bboxLayer = L.polygon(latlngs, {color: 'red', weight:1})
-        .addTo(this.map)
-        _this.polygon = L.geoJSON(
-            geojson, 
-            {style() {return {weight: 1}}})
-        .addTo(this.map)
-        .on('click', function (e) {
-          _this.ptValues = {ew: [], ns: [], magn: []}
-          _this.searching = true
-          _this.$forceUpdate()
-          TileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
-          .then(resp => {
-            console.log('ew=', resp)
-            _this.searching = false
-            if (resp) {
-              _this.draw('ew', resp)
-            }
-          })
-          TileSystem.searchData('ns', e.latlng.lat, e.latlng.lng)
-          .then(resp => {
-            console.log('ns=', resp)
-            _this.searching = false
-            if (resp) {
-              _this.draw('ns', resp)
-            }
-          })
-          TileSystem.searchData('magn', e.latlng.lat, e.latlng.lng)
-          .then(resp => {
-            console.log('magn=', resp)
-            _this.searching = false
-            if (resp) {
-              _this.draw('magn', resp)
-            }
-          })
-        })
+      TileSystem.load(this.directory, this)
+      .then( geojson => { _this.initializeView(geojson)})
        // L.rectangle(poly.getBounds(), {color: 'green', weight: 1, opacity:0.1}).addTo(this.map)
-        this.map.fitBounds(_this.polygon.getBounds())
+ 
+    },
+    addMarkers(data) {
+      var _this = this
+      var markers = []
+      data.forEach(function (pos) {
+        var marker = L.marker(pos, {icon: _this.iconPoint})
+        markers.push(marker)
+      })
+      this.markersCanvas.addMarkers(markers)
+    },
+    searchData (e) {
+      var _this = this
+      this.ptValues = {ew: [], ns: [], magn: []}
+      this.searching = true
+      this.$forceUpdate()
+      TileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
+      .then(resp => {
+        _this.searching = false
+        if (resp) {
+          _this.draw('ew', resp)
+        }
+      })
+      TileSystem.searchData('ns', e.latlng.lat, e.latlng.lng)
+      .then(resp => {
+        _this.searching = false
+        if (resp) {
+          _this.draw('ns', resp)
+        }
+      })
+      TileSystem.searchData('magn', e.latlng.lat, e.latlng.lng)
+      .then(resp => {
+        _this.searching = false
+        if (resp) {
+          _this.draw('magn', resp)
+        }
+      })
+    },
+    initializeView (geojson) {
+      var _this = this
+      var bbox = geojson.properties.bbox
+      var latlngs = [
+         [bbox.minlat, bbox.minlon],
+         [bbox.minlat, bbox.maxlon],
+         [bbox.maxlat, bbox.maxlon],
+         [bbox.maxlat, bbox.minlon],
+         [bbox.minlat, bbox.minlon]
+      ]
+      this.bboxLayer = L.polygon(latlngs, {color: 'red', weight:1})
+      .addTo(this.map)
+      
         
         this.dates = geojson.properties.dates.map(dt => moment( dt, 'YYYYMMDD').valueOf())
         this.keys = geojson.properties.keys
-      })
+      this.polygon = L.geoJSON(
+          geojson, 
+          {style() {return {weight: 1}}})
+      .addTo(this.map)
+      .on('click', function (e) { _this.searchData(e)})
+       this.map.fitBounds(this.polygon.getBounds())
     },
     reset () {
       // remove bbox layer et polygon

@@ -5,6 +5,8 @@ export default {
   root: null,
   lines: 0,
   columns: 0,
+  tileLines: 0,
+  tileCols: 0,
   tabs: ['ns', 'ew', 'magn'],
   tiles: {},
   determinant: null,
@@ -13,22 +15,40 @@ export default {
     u: null,
     v: null
   },
+  parent: null,
   active: null,
   initialize (data) {
     this.computeCoordSystem(data)
+    this.loadAll(0, 0)
   },
   initializeTile (tile, key, data) {
     if (!this.tiles[tile]) {
       this.tiles[tile] = {}
     }
     if (!this.tiles[tile][key]) {
-      this.tiles[tile][key] = data.data
+      this.tiles[tile][key] = data.data 
     }
-    if (this.tiles[tile].ns && this.tiles[tile].ew && this.tiles[tile].magn) {
+   // this.searchValidPoints(tile, key)
+    if (!this.tiles[tile].loaded && this.tiles[tile].ns && this.tiles[tile].ew && this.tiles[tile].magn) {
       this.tiles[tile].loaded = true
+      this.searchValidPoints(tile, key)
     }
   },
-  load (dir) {
+  searchValidPoints (tile, key) {
+    var points = []
+    this.tiles[tile][key].forEach(function (line) {
+      line.forEach(function (col) {
+        if (col[3] !== null) {
+          points.push([col[0], col[1]])
+        }
+      })
+    })
+    if (this.parent) {
+      this.parent.addMarkers(points)
+    }
+  },
+  load (dir, parent) {
+    this.parent = parent
     this.dir = dir + '/'
     var _dir = this.dir
     return new Promise((successCallback, failureCallback) => {
@@ -38,6 +58,31 @@ export default {
          successCallback(resp.body)},
          resp => failureCallback(resp))
     })
+  },
+  loadAll (tileLine, tileColumn) {
+    if (tileLine > this.tileLines && tileColumn > this.tileCols) {
+      return
+    }
+    var _this = this
+    var tile = tileLine.toString().padStart(3, '0') + '_' + tileColumn.toString().padStart(3, '0')
+    this.loadTile('ns', tile)
+    .then(
+        resp => { return _this.loadTile('ew', tile)}
+    ).then(
+        resp => {return _this.loadTile('magn', tile)}
+    ).then(
+        resp => {
+          if (tileColumn < this.tileCols) {
+            this.loadAll(tileLine, tileColumn + 1)
+          } else {
+            this.loadAll(tileLine + 1, 0)
+          }
+        }
+    )
+    
+    // next step
+    
+    
   },
   loadTile (type, tile) {
     var _this = this
@@ -51,32 +96,16 @@ export default {
       Vue.http.get(_this.dir + type + '_displ_' +  tile + '.json')
         .then(resp => {
            _this.initializeTile(tile, type, resp.body)
-           _this.tiles[tile].loaded = true
+           // _this.tiles[tile].loaded = true
            if (successCallback) {
             successCallback()
            }
-          })
-          // return Vue.http.get(_this.dir + 'ew_displ_' +  tile + '.json')})
-//        .then(resp1 => { 
-//           _this.initializeTile(tile, 'ew', resp1.body)
-//           return Vue.http.get(_this.dir + 'magn_displ_' +  tile + '.json')})
-//        .then(resp2 => {
-//          _this.initializeTile(tile, 'magn', resp2.body)
-//          _this.tiles[tile].loaded = true
-//          if (successCallback) {
-//            successCallback()
-//          }
-//          
-//         })
+        })
     })
-
-    
   },
   changeFrame (lat, lng) {
     var line = (this.coordSystem.u.dLng * (lat - this.coordSystem.origin.lat) - this.coordSystem.u.dLat * (lng- this.coordSystem.origin.lng)) / this.determinant
     var col = (this.coordSystem.v.dLat * (lng- this.coordSystem.origin.lng) - this.coordSystem.v.dLng * (lat - this.coordSystem.origin.lat)) / this.determinant
-    console.log('line = ', line)
-    console.log('col = ', col)
     if (line > this.lines) {
       return false
     }
@@ -93,65 +122,22 @@ export default {
   },
   searchData (type, lat, lng) {
     var pos = this.changeFrame(lat, lng)
-    
     var _this = this
-//    return new Promise((successCallback, failureCallback) => {
-//      if (!pos) {
-//        if (successCallback) {
-//           successCallback(false)
-//        }
-//        return false
-//      }
-//      if (_this.tiles[pos.tile] && _this.tiles[pos.tile].loaded) {
-//        console.log(_this.tiles[pos.tile])
-//        if (successCallback) {
-//          successCallback( {
-//            'ew': _this.tiles[pos.tile]['ew'][pos.line][pos.col],
-//            'ns': _this.tiles[pos.tile]['ns'][pos.line][pos.col],
-//            'magn': _this.tiles[pos.tile]['magn'][pos.line][pos.col]
-//           })
-//        }
- //     } else {
-//        var callback = function () {
-//          return _this.searchData(lat, lng, successCallback, failureCallback)
-//        }
       
-      return  this.loadTile(type, pos.tile).then(
-             resp => {return {
-               values: this.tiles[pos.tile][type][pos.line][pos.col],
-//               'ns': this.tiles[pos.tile]['ns'][pos.line][pos.col],
-//               'magn': this.tiles[pos.tile]['magn'][pos.line][pos.col]
-              }}
-        )
-//      }
-//    }).then(resp => {
-//      console.log('last step')
-//      if (_this.tiles[pos.tile] && _this.tiles[pos.tile].loaded) {
-//        if (successCallback) {
-//        successCallback( {
-//          'ew': _this.tiles[pos.tile]['ew'][pos.line][pos.col],
-//          'ns': _this.tiles[pos.tile]['ns'][pos.line][pos.col],
-//          'magn': _this.tiles[pos.tile]['magn'][pos.line][pos.col]
-//         })
-//        }
-//        return {
-//            'ew': _this.tiles[pos.tile]['ew'][pos.line][pos.col],
-//            'ns': _this.tiles[pos.tile]['ns'][pos.line][pos.col],
-//            'magn': _this.tiles[pos.tile]['magn'][pos.line][pos.col]
-//           }
-//       }
-//      return false
-//    })
+    return  this.loadTile(type, pos.tile).then(
+      resp => {return {values: this.tiles[pos.tile][type][pos.line][pos.col]}}
+    )
   },
   computeCoordSystem (data) {
       this.lines = data.properties.nb_lines
       this.columns = data.properties.nb_columns
+      this.tileLines = Math.floor(this.lines / 100)
+      this.tileCols = Math.floor(this.columns / 100)
       var lastLine = data.properties.nb_lines - 1
       var lastCol = data.properties.nb_columns - 1
       var pointTL = data.properties.pointTL
       var pointTR = data.properties.pointTR
       var pointBL = data.properties.pointBL
-     // L.marker( [this.MAGN[0][0][0], this.MAGN[0][0][1]]).addTo(this.map)
       this.coordSystem.origin = {lat: pointTL[0], lng: pointTL[1]}
       // column
       this.coordSystem.u = {
@@ -165,16 +151,5 @@ export default {
 
       }
       this.determinant = this.coordSystem.u.dLng * this.coordSystem.v.dLat - this.coordSystem.u.dLat * this.coordSystem.v.dLng
-      // test 
-      // line 12 colone 46
-//      var lat = this.coordSystem.origin.lat + 46 * this.coordSystem.u.dLat + 12 * this.coordSystem.v.dLat
-//      var lng = this.coordSystem.origin.lng + 46 * this.coordSystem.u.dLng + 12 * this.coordSystem.v.dLng
-//      L.marker([lat, lng]).addTo(this.map)
-//      L.circle([this.MAGN[12][46][0], this.MAGN[12][46][1]], {weight:1, radius: 5, color: 'red'}).addTo(this.map)
-//       L.marker([this.MAGN[lastLine][0][0], this.MAGN[lastLine][0][1]]).addTo(this.map)
-      
-//       L.marker([this.MAGN[0][lastCol][0], this.MAGN[0][lastCol][1]]).addTo(this.map)
-//       L.marker([this.MAGN[lastLine][lastCol][0], this.MAGN[lastLine][lastCol][1]]).addTo(this.map)
-      console.log(this.coordSystem)
   }
 }

@@ -4,9 +4,9 @@
       <div style="ming-height:150px;">--DIVERS INFOS---
        <div>@todo</div>
       </div>
-      <div id="graph_ew" style="height:220px;" @mousemove="highlight($event, 'ew')"></div>
-      <div id="graph_ns" style="height:220px;" @mousemove="highlight($event, 'ns')"></div>
-      <div id="graph_magn" style="height:220px;" @mousemove="highlight($event, 'magn')"></div>
+      <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')"></div>
+      <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')"></div>
+      <div id="graph_magn" :style="{height:height + 'px'}" @mousemove="highlight($event, 'magn')"></div>
       <div>-- the end --</div>
 </div>
 </div>
@@ -83,6 +83,10 @@ export default {
     keys: {
       type: Array,
       default: () => []
+    },
+    height: {
+      type: Number,
+      default: 200
     }
   },
   data () {
@@ -240,7 +244,7 @@ export default {
           zoomType: 'x'
         },
         title: 'Test',
-        height: '32%',
+        height: _this.height + 'px',
         credits: {
           enabled:false
         },
