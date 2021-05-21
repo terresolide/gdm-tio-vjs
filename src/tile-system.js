@@ -39,7 +39,7 @@ export default {
          resp => failureCallback(resp))
     })
   },
-  loadTile (tile) {
+  loadTile (type, tile) {
     var _this = this
     return new Promise((successCallback, failureCallback) => {
       if (_this.tiles[tile] && _this.tiles[tile].loaded) {
@@ -48,21 +48,26 @@ export default {
         }
         return true
       }
-      Vue.http.get(_this.dir + 'ns_displ_' +  tile + '.json')
+      Vue.http.get(_this.dir + type + '_displ_' +  tile + '.json')
         .then(resp => {
-           _this.initializeTile(tile, 'ns', resp.body)
-           return Vue.http.get(_this.dir + 'ew_displ_' +  tile + '.json')})
-        .then(resp1 => { 
-           _this.initializeTile(tile, 'ew', resp1.body)
-           return Vue.http.get(_this.dir + 'magn_displ_' +  tile + '.json')})
-        .then(resp2 => {
-          _this.initializeTile(tile, 'magn', resp2.body)
-          _this.tiles[tile].loaded = true
-          if (successCallback) {
+           _this.initializeTile(tile, type, resp.body)
+           _this.tiles[tile].loaded = true
+           if (successCallback) {
             successCallback()
-          }
-          
-         })
+           }
+          })
+          // return Vue.http.get(_this.dir + 'ew_displ_' +  tile + '.json')})
+//        .then(resp1 => { 
+//           _this.initializeTile(tile, 'ew', resp1.body)
+//           return Vue.http.get(_this.dir + 'magn_displ_' +  tile + '.json')})
+//        .then(resp2 => {
+//          _this.initializeTile(tile, 'magn', resp2.body)
+//          _this.tiles[tile].loaded = true
+//          if (successCallback) {
+//            successCallback()
+//          }
+//          
+//         })
     })
 
     
@@ -86,7 +91,7 @@ export default {
     
     return {tile: tile, line: Math.round(line) % 100, col: Math.round(col) % 100}
   },
-  searchData (lat, lng) {
+  searchData (type, lat, lng) {
     var pos = this.changeFrame(lat, lng)
     
     var _this = this
@@ -111,11 +116,11 @@ export default {
 //          return _this.searchData(lat, lng, successCallback, failureCallback)
 //        }
       
-      return  this.loadTile(pos.tile).then(
+      return  this.loadTile(type, pos.tile).then(
              resp => {return {
-               'ew': this.tiles[pos.tile]['ew'][pos.line][pos.col],
-               'ns': this.tiles[pos.tile]['ns'][pos.line][pos.col],
-               'magn': this.tiles[pos.tile]['magn'][pos.line][pos.col]
+               values: this.tiles[pos.tile][type][pos.line][pos.col],
+//               'ns': this.tiles[pos.tile]['ns'][pos.line][pos.col],
+//               'magn': this.tiles[pos.tile]['magn'][pos.line][pos.col]
               }}
         )
 //      }

@@ -19,7 +19,7 @@
   <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
   <div id="gdmMap"></div>
   </div>
-  <tio-graph :dates="dates" :pt-values="ptValues" :keys="keys"></tio-graph>
+  <tio-graph :dates="dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" :magn-values="ptValues.magn" :keys="keys"></tio-graph>
 <!--  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">DIVERS INFOS
        <div>@todo</div>
@@ -73,13 +73,18 @@ export default {
   data () {
 		return {
   			map: null,
-  			ptValues: {},
+  			ptValues: {
+  			  ns: [],
+  			  ew: [],
+  			  magn: []
+  			},
   			marker: null,
   			markersCanvas: null,
   			bboxLayer: null,
   			polygon: null,
   			keys: [],
-  			dates: []
+  			dates: [],
+  			searching: false
 		}
   },
 //   watch: {
@@ -100,9 +105,9 @@ export default {
       this.initTiles()
   },
   methods: {
-    draw (data) {
-      this.ptValues = data
-      this.marker.setLatLng([data.ew[0], data.ew[1]])
+    draw (type, data) {
+      this.$set(this.ptValues, type, data.values)
+      this.marker.setLatLng([data.values[0], data.values[1]])
     },
     initMap () {
       var container = this.$el.querySelector('#gdmMap');
@@ -134,13 +139,31 @@ export default {
             {style() {return {weight: 1}}})
         .addTo(this.map)
         .on('click', function (e) {
+          _this.ptValues = {ew: [], ns: [], magn: []}
           _this.searching = true
           _this.$forceUpdate()
-          TileSystem.searchData(e.latlng.lat, e.latlng.lng)
+          TileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
           .then(resp => {
+            console.log('ew=', resp)
             _this.searching = false
-            if (resp.ew) {
-              _this.draw(resp)
+            if (resp) {
+              _this.draw('ew', resp)
+            }
+          })
+          TileSystem.searchData('ns', e.latlng.lat, e.latlng.lng)
+          .then(resp => {
+            console.log('ns=', resp)
+            _this.searching = false
+            if (resp) {
+              _this.draw('ns', resp)
+            }
+          })
+          TileSystem.searchData('magn', e.latlng.lat, e.latlng.lng)
+          .then(resp => {
+            console.log('magn=', resp)
+            _this.searching = false
+            if (resp) {
+              _this.draw('magn', resp)
             }
           })
         })

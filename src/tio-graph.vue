@@ -68,9 +68,17 @@ export default {
       type: Array,
       default: () => []
     },
-    ptValues: {
-      type: Object,
-      default: () => {}
+    nsValues: {
+      type: Array,
+      default: () => []
+    },
+    ewValues: {
+      type: Array,
+      default: () => []
+    },
+    magnValues: {
+      type: Array,
+      default: () => []
     },
     keys: {
       type: Array,
@@ -90,9 +98,21 @@ export default {
     }
   },
   watch: {
-    ptValues (newvalues) {
-      console.log('newvalues')
-      this.draw(newvalues)
+//     ptValues (newvalues) {
+//       console.log('newvalues')
+//       this.draw(newvalues)
+//     }
+    nsValues (newvalues) {
+      console.log('ns change')
+      this.draw('ns', newvalues)
+    },
+    ewValues (newvalues) {
+      console.log('ew change')
+      this.draw('ew', newvalues)
+    },
+    magnValues (newvalues) {
+      console.log('magn change')
+      this.draw('magn', newvalues)
     }
   },
   methods: {
@@ -128,12 +148,12 @@ export default {
         }
       }    
     },
-    draw (values) {
-      console.log(values)
-      // remove old graphs
-      this.drawOne('ew', values.ew)
-      this.drawOne('ns', values.ns)
-      this.drawOne('magn', values.magn)
+//     draw (type, values) {
+//       console.log(values)
+//       // remove old graphs
+//       this.drawOne(type, values)
+//       this.drawOne('ns', values.ns)
+//       this.drawOne('magn', values.magn)
 //       ['EW', 'NS', 'MAGN'].forEach(function (key) {
 //         console.log(key)
 //         console.log(_this.graphs)
@@ -148,8 +168,8 @@ export default {
 //          _this.drawOne(key, values[key])
 //         }
 //       })
-    },
-    drawOne (type, tab) {
+ //   },
+    draw (type, tab) {
 
       // remove graph if exists
       if (this.graphs[type]) {
@@ -171,7 +191,7 @@ export default {
       }
       this.hasValues = true
       tab = tab.slice(this.keys.length)
-      
+      console.log(tab)
       var data = []
     
       var min = null
