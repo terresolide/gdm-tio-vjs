@@ -1,32 +1,52 @@
 <i18n>
 { 
   "fr":  {
-     "height": "Hauteur"
+     "height": "Hauteur",
+     "plot_point": "Données du point sélectionné",
+     "MEAN_VELOCITY": "VITESSE MOYENNE",
+     "QUALITY": "QUALITÉ"
   },
   "en": {
-     "height": "Height"
+     "height": "Height",
+     "plot_point": "Data of the selected point",
+     "MEAN_VELOCITY": "MEAN VELOCITY",
+     "QUALITY": "QUALITY"
   }
 }
 </i18n>
 <template>
-<div>
  <div v-show="hasValues" class="graph-container" >
-     <span class="fa fa-close"></span>
-      <div style="ming-height:150px;margin: 0px 10px;">
-       <h4 style="">DIVERS INFOS</h4>
-          <div v-if="position.lat">
-          <label>Position</label>
-          <div>lat: {{position.lat}}°</div>
-          <div>lng: {{position.lng}}°</div>
-          <div>{{$t('height')}}: {{position.height}} m</div>
+     <div class="graph-infos">
+	      <div class="graph-header">
+	      <div class="fa fa-close" @click="$emit('close')"></div>
+	       <h4 style="text-transformation:uppercase;">{{$t('plot_point').toUpperCase()}}</h4>
+	       
+	      </div>
+          <div class="tio-element" v-if="position.lat" >
+          <label>POSITION</label>
+          <div><label>Lat:</label> {{Math.round(position.lat * 1000) / 1000}}°</div>
+          <div><label>Lng:</label> {{Math.round(position.lng * 1000) / 1000}}°</div>
+          <div><label>{{$t('height')}}:</label> {{position.height.toLocaleString()}} m</div>
           </div>
-          <compass-rose :lang="lang" :max="2" :ns="point.ns" :ew="point.ew"></compass-rose>
+          <div class="tio-element" >
+          <label>{{$t('MEAN_VELOCITY')}}</label>
+          <div><label>NS:</label> {{point.ns}}</div>
+          <div><label>EW:</label> {{point.ew}}</div>
+          <div><label>MAGN:</label> {{point.magn}}</div>
+          </div>
+          <div class="tio-element" style="">
+          <label>{{$t('QUALITY')}}</label>
+          <div><label>NS:</label> {{quality.ns}}</div>
+          <div><label>EW:</label> {{quality.ew}}</div>
+          <div><label>MAGN:</label> {{quality.magn}}</div>
+          </div>
+          <div style="display:inline-block;">
+            <compass-rose :lang="lang" :width="100" :height="100" :max="0.005" :ns="point.ns" :ew="point.ew"></compass-rose>
+          </div>
       </div>
       <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')"></div>
       <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')"></div>
       <div id="graph_magn" :style="{height:height + 'px'}" @mousemove="highlight($event, 'magn')"></div>
-      
-</div>
 </div>
 </template>
 <script>
@@ -108,7 +128,7 @@ export default {
     },
     height: {
       type: Number,
-      default: 200
+      default: 180
     },
     lang: {
       type: String,
@@ -125,7 +145,7 @@ export default {
       colors:{
         ew: '#F00',
         ns: '#00F',
-        magn: '#FF4500'
+        magn: '#006400'
       }
     }
   },
@@ -219,9 +239,10 @@ export default {
       this.position.lat = tab[0]
       this.position.lng = tab[1]
       this.position.height = tab[2]
-      this.point[type] = tab[3]
-      var index = this.keys.findIndex(tb => tb === 'quality')
-      var quality = tab[index]
+      var index = this.keys.findIndex(tb => tb === 'velocity')
+      this.point[type] = tab[index]
+      index = this.keys.findIndex(tb => tb === 'quality')
+      var quality = Math.round(tab[index] * 100) / 100
       this.quality[type] = quality
       if (tab[index] === 0) {
         console.log('Aucune valeur')
@@ -368,5 +389,44 @@ export default {
     border: 1px solid #ccc;
     border-radius: 0 0 5px 5px;
     box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+.graph-container .tio-element {
+  font-color: darkgrey;
+  font-size: 12px;
+  display:inline-block;
+  vertical-align:top;
+  padding:0 10px;
+}
+.graph-container .tio-element  > div {
+  margin-left:10px;
+}
+.graph-container .graph-infos {
+   margin:0px;
+   padding:0;
+   font-size:0.9rem;
+}
+.graph-container .graph-header {
+  background: #f3F3F3;
+  position:relative;
+  margin: 0 0 10px 0;
+}
+.graph-container .graph-infos label {
+  font-weight:700;
+}
+
+.graph-container .graph-header h4 {
+  margin:0;
+  padding: 5px 10px 5px 5px;
+}
+.graph-container .graph-header .fa.fa-close {
+  display:block;
+  float:right;
+  margin: 3px 5px;
+  padding: 2px;
+  border: 1px dotted #f3F3F3;
+  cursor: pointer;
+}
+.graph-container .graph-header .fa.fa-close:hover {
+  border-color: #333;
 }
 </style>

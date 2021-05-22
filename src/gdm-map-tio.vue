@@ -19,7 +19,8 @@
   <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
   <div id="gdmMap"></div>
   </div>
-  <tio-graph :dates="dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" :magn-values="ptValues.magn" :keys="keys"></tio-graph>
+  <tio-graph v-show="showGraph" :dates="dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
+  :magn-values="ptValues.magn" :keys="keys" @close="showGraph=false"></tio-graph>
 <!--  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">DIVERS INFOS
        <div>@todo</div>
@@ -51,7 +52,8 @@ Icon.Default.mergeOptions({
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
-import TioGraph from './tio-graph.vue'
+ const TioGraph = () => import('./tio-graph.vue')
+// import TioGraph from './tio-graph.vue'
 import TileSystem from './tile-system.js'
 import moment from 'moment'
 export default {
@@ -87,7 +89,8 @@ export default {
   			iconRed: null,
   			iconBlue: null,
   			iconGrey: null,
-  			arrowIcon: null
+  			arrowIcon: null,
+  			showGraph: true
 		}
   },
 //   watch: {
@@ -111,6 +114,7 @@ export default {
     draw (type, data) {
       this.$set(this.ptValues, type, data.values)
       this.marker.setLatLng([data.values[0], data.values[1]])
+      this.showGraph = true
     },
     initMap () {
       var container = this.$el.querySelector('#gdmMap');
@@ -127,16 +131,19 @@ export default {
       })
       this.marker = L.marker([4, 50])
       this.marker.addTo(this.map)
-      this.iconRed = L.icon({
-        iconUrl: require('./assets/img/pointRed.png'),
-        iconSize: [1, 1],
-        iconAnchor: [0, 0],
+      this.marker.on('click', function (e) {
+          _this.showGraph = true
       })
-      this.iconGrey = L.icon({
-        iconUrl: require('./assets/img/pointGrey.png'),
-        iconSize: [1, 1],
-        iconAnchor: [0, 0],
-      })
+//       this.iconRed = L.icon({
+//         iconUrl: require('./assets/img/pointRed.png'),
+//         iconSize: [1, 1],
+//         iconAnchor: [0, 0],
+//       })
+//       this.iconGrey = L.icon({
+//         iconUrl: require('./assets/img/pointGrey.png'),
+//         iconSize: [1, 1],
+//         iconAnchor: [0, 0],
+//       })
       this.iconBlue = L.icon({
         iconUrl: require('./assets/img/pointBlue.png'),
         iconSize: [1, 1],

@@ -10,7 +10,7 @@
 </i18n>
 <template>
 <div> 
- <svg  xmlns="http://www.w3.org/2000/svg" :style="{width: width + 'px', height: height + 'px'}" :width="size.width" :height="size.height" :viewBox="'0 0 ' + size.width + ' ' + size.height">
+ <svg class="compass-rose" xmlns="http://www.w3.org/2000/svg" :style="{width: width + 'px', height: height + 'px'}" :width="size.width" :height="size.height" :viewBox="'0 0 ' + size.width + ' ' + size.height">
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" 
     refX="2.5" refY="3.5" orient="auto">
@@ -88,7 +88,7 @@ export default {
     point () {
       console.log(this.ew)
       console.log('ns =', this.ns)
-      var x = this.ew * this.radius / this.max + this.center.x
+      var x = (-1) * this.ew * this.radius / this.max + this.center.x
       var y = this.ns * this.radius / this.max + this.center.y
       return {x: x, y: y}
     }
@@ -101,8 +101,9 @@ export default {
 }
 </script>
 <style>
-text {
+svg.compass-rose text {
  font-family: century-gothic, sans-serif;
  font-weight:700;
+ font-size:18px;
 }
 </style>
