@@ -16,6 +16,10 @@
     refX="2.5" refY="3.5" orient="auto">
       <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" :fill="color"/>
     </marker>
+     <marker id="arrowhead2" markerWidth="10" markerHeight="7" 
+    refX="2.5" refY="3.5" orient="auto">
+      <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" fill="blue"/>
+    </marker>
   </defs>
  <!--  <g>
    <rect x="0" y="0" height="219" width="230" stroke="transparent"  fill="transparent"/>
@@ -34,6 +38,8 @@
 <g>
   <line :x1="center.x" :y1="center.y" :x2="point.x" :y2="point.y" :stroke="color" 
   stroke-width="2" marker-end="url(#arrowhead)" />
+    <line v-if="ptDate" :x1="center.x" :y1="center.y" :x2="ptDate.x" :y2="ptDate.y" :stroke="'blue'" 
+  stroke-width="2" marker-end="url(#arrowhead2)" />
 </g>
  </svg>
 </div>
@@ -66,6 +72,14 @@ export default {
       type: Number,
       default: 3
     },
+    dateNs: {
+      type: Number,
+      default: null
+    },
+    dateEw: {
+      type: Number,
+      default: null
+    },
     color: {
       type: String,
       default: '#f00'
@@ -86,11 +100,18 @@ export default {
   },
   computed: {
     point () {
-      console.log(this.ew)
-      console.log('ns =', this.ns)
       var x = (-1) * this.ew * this.radius / this.max + this.center.x
       var y = this.ns * this.radius / this.max + this.center.y
       return {x: x, y: y}
+    },
+    ptDate () {
+      if (this.dateEw && this.dateNs) {
+        var x = (-1) * this.dateEw * this.radius / 6 + this.center.x
+        var y = this.dateNs * this.radius / 6 + this.center.y
+        return {x: x, y: y}
+      } else {
+        return null
+      }
     }
   },
   created () {

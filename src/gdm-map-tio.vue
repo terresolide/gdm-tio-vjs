@@ -90,7 +90,7 @@ export default {
   			iconBlue: null,
   			iconGrey: null,
   			arrowIcon: null,
-  			showGraph: true
+  			showGraph: false
 		}
   },
 //   watch: {

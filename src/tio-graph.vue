@@ -1,15 +1,17 @@
 <i18n>
 { 
   "fr":  {
+     "by_date": "By date",
      "height": "Hauteur",
      "plot_point": "Données du point sélectionné",
-     "MEAN_VELOCITY": "VITESSE MOYENNE",
+     "mean_velocity": "Vitesse moyenne",
      "QUALITY": "QUALITÉ"
   },
   "en": {
+     "by_date": "Par date",
      "height": "Height",
      "plot_point": "Data of the selected point",
-     "MEAN_VELOCITY": "MEAN VELOCITY",
+     "mean_velocity": "Mean velocity",
      "QUALITY": "QUALITY"
   }
 }
@@ -29,7 +31,7 @@
           <div><label>{{$t('height')}}:</label> {{position.height.toLocaleString()}} m</div>
           </div>
           <div class="tio-element" >
-          <label>{{$t('MEAN_VELOCITY')}}</label>
+          <label>{{$t('mean_velocity').toUpperCase()}}</label>
           <div><label>NS:</label> {{point.ns}}</div>
           <div><label>EW:</label> {{point.ew}}</div>
           <div><label>MAGN:</label> {{point.magn}}</div>
@@ -41,7 +43,12 @@
           <div><label>MAGN:</label> {{quality.magn}}</div>
           </div>
           <div style="display:inline-block;">
-            <compass-rose :lang="lang" :width="100" :height="100" :max="0.005" :ns="point.ns" :ew="point.ew"></compass-rose>
+            <compass-rose :lang="lang" :width="100" :height="100" :max="0.005" :ns="point.ns" :ew="point.ew" color="#f00"
+            :date-ns="pointDate.ns" :date-ew="pointDate.ew"></compass-rose>
+          </div>
+           <div class="tio-element" style="">
+          <div style="color:#f00;"><label >&rarr;</label> {{$t('mean_velocity')}}</div>
+          <div style="color:blue"><label >&rarr;</label> {{ pointDate.date || $t('by_date')}}</div>
           </div>
       </div>
       <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')"></div>
@@ -141,6 +148,7 @@ export default {
       graphs: {},
       position: {lat: null, lng: null},
       point: {ns: 0, ew: 0},
+      pointDate: {ns: null, ew: null, magn: null, date: null},
       hasValues: false,
       colors:{
         ew: '#F00',
@@ -155,15 +163,15 @@ export default {
 //       this.draw(newvalues)
 //     }
     nsValues (newvalues) {
-      console.log('ns change')
+      this.pointDateInit()
       this.draw('ns', newvalues)
     },
     ewValues (newvalues) {
-      console.log('ew change')
+      this.pointDateInit()
       this.draw('ew', newvalues)
     },
     magnValues (newvalues) {
-      console.log('magn change')
+      this.pointDateInit()
       this.draw('magn', newvalues)
     }
   },
@@ -171,6 +179,9 @@ export default {
     this.$i18n.locale = this.lang
   },
   methods: {
+    pointDateInit () {
+      this.pointDate = {ns: null, ew: null, magn: null, date: null}
+    },
     highlight (e, type) {
 //    if (!this.graphs[type]) {
 //      this.tooltip = false
@@ -321,12 +332,15 @@ export default {
               var chart = _this.graphs[key];
                if (chart && typeof chart !== 'undefined') {
                  var pt = chart.series[0].points.find(el => el.x === this.point.x )
+                 _this.pointDate[key] = pt.open
+                 
                  values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
                }
                if (key !== type) {
                  chart.tooltip.hide();
                }
             }
+            _this.pointDate.date = moment.unix(this.point.x/ 1000).format('ll')
             var s = '<b>' + moment.unix(this.point.x/ 1000).format('ll') + '</b><br />'
             return s + values.join('<br />')
           },
@@ -394,8 +408,9 @@ export default {
   font-color: darkgrey;
   font-size: 12px;
   display:inline-block;
+  margin-top:20px;
   vertical-align:top;
-  padding:0 10px;
+  padding:0 5px;
 }
 .graph-container .tio-element  > div {
   margin-left:10px;
@@ -408,7 +423,7 @@ export default {
 .graph-container .graph-header {
   background: #f3F3F3;
   position:relative;
-  margin: 0 0 10px 0;
+  margin: 0;
 }
 .graph-container .graph-infos label {
   font-weight:700;
