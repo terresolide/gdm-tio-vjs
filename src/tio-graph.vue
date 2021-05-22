@@ -1,9 +1,26 @@
+<i18n>
+{ 
+  "fr":  {
+     "height": "Hauteur"
+  },
+  "en": {
+     "height": "Height"
+  }
+}
+</i18n>
 <template>
 <div>
  <div v-show="hasValues" class="graph-container" >
+     <span class="fa fa-close"></span>
       <div style="ming-height:150px;margin: 0px 10px;">
-       <h4>DIVERS INFOS</h4>
-       <div>@todo</div>
+       <h4 style="">DIVERS INFOS</h4>
+          <div v-if="position.lat">
+          <label>Position</label>
+          <div>lat: {{position.lat}}°</div>
+          <div>lng: {{position.lng}}°</div>
+          <div>{{$t('height')}}: {{position.height}} m</div>
+          </div>
+          <compass-rose :lang="lang" :max="2" :ns="point.ns" :ew="point.ew"></compass-rose>
       </div>
       <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')"></div>
       <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')"></div>
@@ -20,6 +37,7 @@ import HighchartsExporting from 'highcharts/modules/exporting'
  import Stock from 'highcharts/modules/stock'
  import Data from 'highcharts/modules/data'
  import Accessibility from 'highcharts/modules/accessibility'
+ import CompassRose from './compass-rose.vue'
 // import Highstock from 'highcharts/highstock'
 // import  Indicators from 'highcharts/indicators/indicators'
 //  import  Regression from 'highcharts/indicators/regressions'
@@ -64,6 +82,9 @@ Highcharts.Pointer.prototype.reset = function () {
 };
 export default {
   name: 'tioGraph',
+  components: {
+    CompassRose
+  },
   props: {
     dates: {
       type: Array,
@@ -88,12 +109,18 @@ export default {
     height: {
       type: Number,
       default: 200
+    },
+    lang: {
+      type: String,
+      default: 'en'
     }
   },
   data () {
     return {
       quality: {},
       graphs: {},
+      position: {lat: null, lng: null},
+      point: {ns: 0, ew: 0},
       hasValues: false,
       colors:{
         ew: '#F00',
@@ -119,6 +146,9 @@ export default {
       console.log('magn change')
       this.draw('magn', newvalues)
     }
+  },
+  created () {
+    this.$i18n.locale = this.lang
   },
   methods: {
     highlight (e, type) {
@@ -186,6 +216,10 @@ export default {
 //         return false
 //       }
 //       tab = tab[row][col]
+      this.position.lat = tab[0]
+      this.position.lng = tab[1]
+      this.position.height = tab[2]
+      this.point[type] = tab[3]
       var index = this.keys.findIndex(tb => tb === 'quality')
       var quality = tab[index]
       this.quality[type] = quality
@@ -297,7 +331,12 @@ export default {
                  text: type.toUpperCase()
              },
              min: min,
-             max: max
+             max: max,
+             plotLines: [{
+               value: 0,
+               color: 'lightgrey',
+               width: 2
+             }]
          },
          series: [{
              name: type,

@@ -16,6 +16,7 @@ import {VueTools} from 'formater-commons-components-vjs'
 Vue.use(VueTools)
 
 import GdmMapTio from './gdm-map-tio.vue'
+import CompassRose from './compass-rose.vue'
 import 'leaflet/dist/leaflet.css'
 ljs.addAliases({
   dep: [
@@ -29,5 +30,6 @@ ljs.addAliases({
 })
 ljs.load('dep', function() {
   Vue.customElement('gdm-map-tio', GdmMapTio)
+  Vue.customElement('compass-rose', CompassRose)
 })
     	  
