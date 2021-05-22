@@ -17,13 +17,13 @@
 }
 </i18n>
 <template>
- <div v-show="hasValues" class="graph-container" >
-     <div class="graph-infos">
-	      <div class="graph-header">
-	      <div class="fa fa-close" @click="$emit('close')"></div>
-	       <h4 style="text-transformation:uppercase;">{{$t('plot_point').toUpperCase()}}</h4>
-	       
-	      </div>
+ <div v-show="hasValues" class="graph-container" :style="{height: windowHeight + 'px'}">
+      <div class="graph-header" style="height:30px;">
+        <div class="fa fa-close" @click="$emit('close')"></div>
+        <h4  @mousedown="movestart">{{$t('plot_point').toUpperCase()}}</h4>
+      </div>
+	    <div class="graph-infos" style="overflow:scroll;" :style="{height: (windowHeight - 30) + 'px'}">
+	      <div style="display:flex;justify-content: space-between;">
           <div class="tio-element" v-if="position.lat" >
           <label>POSITION</label>
           <div><label>Lat:</label> {{Math.round(position.lat * 1000) / 1000}}°</div>
@@ -42,18 +42,20 @@
           <div><label>EW:</label> {{quality.ew}}</div>
           <div><label>MAGN:</label> {{quality.magn}}</div>
           </div>
-          <div style="display:inline-block;">
-            <compass-rose :lang="lang" :width="100" :height="100" :max="0.005" :ns="point.ns" :ew="point.ew" color="#f00"
-            :date-ns="pointDate.ns" :date-ew="pointDate.ew"></compass-rose>
+          <div >
+            <compass-rose :lang="lang" :width="100" :height="100" :max="0.005" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
+            :color2="compassColors.date" :date-ns="pointDate.ns" :date-ew="pointDate.ew"></compass-rose>
           </div>
            <div class="tio-element" style="">
-          <div style="color:#f00;"><label >&rarr;</label> {{$t('mean_velocity')}}</div>
-          <div style="color:blue"><label >&rarr;</label> {{ pointDate.date || $t('by_date')}}</div>
+          <div :style="{color: compassColors.mean}"><label >&rarr;</label> {{$t('mean_velocity')}}</div>
+          <div :style="{color:compassColors.date}"><label >&rarr;</label> {{ pointDate.date || $t('by_date')}}</div>
           </div>
-      </div>
-      <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')"></div>
-      <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')"></div>
-      <div id="graph_magn" :style="{height:height + 'px'}" @mousemove="highlight($event, 'magn')"></div>
+          
+        </div>
+        <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')"></div>
+        <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')"></div>
+        <div id="graph_magn" :style="{height:height + 'px'}" @mousemove="highlight($event, 'magn')"></div>
+     </div>
 </div>
 </template>
 <script>
@@ -150,11 +152,22 @@ export default {
       point: {ns: 0, ew: 0},
       pointDate: {ns: null, ew: null, magn: null, date: null},
       hasValues: false,
+      windowHeight: 675,
+      windowResizeListener: null,
+      compassColors: {
+        mean: '#ff4500',
+        date: '#b600b1'
+      },
       colors:{
-        ew: '#F00',
-        ns: '#00F',
+        ns: 'blue',
+        ew: '#f00',
         magn: '#006400'
-      }
+      },
+      mousemoveListener: null,
+      mouseupListener: null,
+      selected: false,
+      delta: {x: 0, y:0},
+      pos: {x:0, y:0}
     }
   },
   watch: {
@@ -177,8 +190,56 @@ export default {
   },
   created () {
     this.$i18n.locale = this.lang
+    this.windowResizeListener = this.initSize.bind(this)
+    window.addEventListener('resize', this.windowResizeListener)
+      this.mousemoveListener = this.move.bind(this)
+    document.addEventListener('mousemove', this.mousemoveListener)
+    this.mouseupListener = this.moveEnd.bind(this)
+    document.addEventListener('mouseup', this.mouseupListener)
+  },
+  mounted () {
+    this.initSize()
+    
+  },
+  destroyed () {
+    window.removeEventListener('resize', this.windowResizeListener)
+    this.windowResizeListener = null
+    document.removeEventListener('mousemove', this.mousemoveListener)
+    this.mousemoveListener = null
+    document.removeEventListener('mouseup', this.mouseupListener)
+    this.mouseupListener = null
   },
   methods: {
+    initSize () {
+      this.windowHeight = Math.min(window.innerHeight * 0.95, 675)
+      this.initPosition()
+    },
+    initPosition () {
+      var left = (window.innerWidth - 700) / 2;
+      var top = (window.innerHeight - this.windowHeight ) / 2;
+      this.$el.style.left = left + 'px';
+      this.$el.style.top = top + 'px';
+      this.pos.x = left
+      this.pos.y = this.$el.offsetTop
+    },
+    movestart (evt) {
+      this.selected = true
+      this.delta = {
+          x: this.pos.x - this.$el.offsetLeft,
+          y: this.pos.y - this.$el.offsetTop
+      }
+    },
+    move (evt) {
+      this.pos.x = evt.clientX
+      this.pos.y = evt.clientY
+      if (this.selected) {
+        this.$el.style.left = (this.pos.x - this.delta.x) + 'px'
+        this.$el.style.top = (this.pos.y - this.delta.y) + 'px'
+      }
+    },
+    moveEnd () {
+      this.selected = false
+    },
     pointDateInit () {
       this.pointDate = {ns: null, ew: null, magn: null, date: null}
     },
@@ -262,7 +323,6 @@ export default {
       }
       this.hasValues = true
       tab = tab.slice(this.keys.length)
-      console.log(tab)
       var data = []
     
       var min = null
@@ -311,6 +371,7 @@ export default {
           zoomType: 'x'
         },
         title: 'Test',
+        width: '680px',
         height: _this.height + 'px',
         credits: {
           enabled:false
@@ -396,18 +457,21 @@ export default {
 </script>
 <style>
 .graph-container {
-    width:50%;
-    margin-left:50%;
-    min-height:600px;
-    position:relative;
+    width:700px;
+    height:auto;
+    max-height:95%;
+    position:fixed;
+    top: calc(50% - 300px);
+    left:calc(50% - 350px);
     border: 1px solid #ccc;
     border-radius: 0 0 5px 5px;
+    background: white;
     box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
 .graph-container .tio-element {
   font-color: darkgrey;
   font-size: 12px;
-  display:inline-block;
+  /* display:inline-block;*/
   margin-top:20px;
   vertical-align:top;
   padding:0 5px;
@@ -432,6 +496,7 @@ export default {
 .graph-container .graph-header h4 {
   margin:0;
   padding: 5px 10px 5px 5px;
+  cursor: move;
 }
 .graph-container .graph-header .fa.fa-close {
   display:block;

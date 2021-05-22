@@ -41,10 +41,16 @@ export default {
   },
   searchValidPoints (tile, key) {
     var points = []
-    this.tiles[tile][key].forEach(function (line) {
-      line.forEach(function (col) {
+    // var points13 = []
+    this.tiles[tile][key].forEach(function (line, index0) {
+      line.forEach(function (col, index) {
         if (col[3] !== null) {
-          points.push({pt:[col[0], col[1]], value:col[66]})
+          if ((index0 + index) % 3 === 0) {
+            points.push({pt:[col[0], col[1]], value:col[66]})
+          } 
+//          else {
+//            points13.push({pt:[col[0], col[1]], value:col[66]})
+//          }
         }
       })
     })

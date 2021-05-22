@@ -18,7 +18,7 @@
     </marker>
      <marker id="arrowhead2" markerWidth="10" markerHeight="7" 
     refX="2.5" refY="3.5" orient="auto">
-      <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" fill="blue"/>
+      <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" :fill="color2"/>
     </marker>
   </defs>
  <!--  <g>
@@ -38,7 +38,7 @@
 <g>
   <line :x1="center.x" :y1="center.y" :x2="point.x" :y2="point.y" :stroke="color" 
   stroke-width="2" marker-end="url(#arrowhead)" />
-    <line v-if="ptDate" :x1="center.x" :y1="center.y" :x2="ptDate.x" :y2="ptDate.y" :stroke="'blue'" 
+    <line v-if="ptDate" :x1="center.x" :y1="center.y" :x2="ptDate.x" :y2="ptDate.y" :stroke="color2" 
   stroke-width="2" marker-end="url(#arrowhead2)" />
 </g>
  </svg>
@@ -83,6 +83,10 @@ export default {
     color: {
       type: String,
       default: '#f00'
+    },
+    color2: {
+      type: String,
+      default: '#0f0'
     }
   },
   data () {

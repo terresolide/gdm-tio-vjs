@@ -15,12 +15,14 @@
 
 <template>
   <span class="gdm-map-tio">
-  <div style="position:relative;width: calc(50% - 10px);">
-  <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
-  <div id="gdmMap"></div>
+  <div style="position:relative;">
+	  <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
+	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
-  <tio-graph v-show="showGraph" :dates="dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
+   <tio-graph v-show="showGraph" :dates="dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
   :magn-values="ptValues.magn" :keys="keys" @close="showGraph=false"></tio-graph>
+ 
+  
 <!--  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
       <div style="ming-height:150px;">DIVERS INFOS
        <div>@todo</div>
@@ -81,6 +83,7 @@ export default {
   			},
   			marker: null,
   			markersCanvas: null,
+  		//	markersCanvasZ13: null,
   			bboxLayer: null,
   			polygon: null,
   			keys: [],
@@ -90,7 +93,8 @@ export default {
   			iconBlue: null,
   			iconGrey: null,
   			arrowIcon: null,
-  			showGraph: false
+  			showGraph: false,
+  			height: 500
 		}
   },
 //   watch: {
@@ -109,6 +113,7 @@ export default {
   mounted: function () {
       this.initMap()
       this.initTiles()
+      this.height = window.innerHeight
   },
   methods: {
     draw (type, data) {
@@ -149,17 +154,18 @@ export default {
         iconSize: [1, 1],
         iconAnchor: [0, 0],
       })
-      
+//       this.markersCanvasZ13 = new L.MarkersCanvas()
+//       if (this.map.getZoom() > 13) {
+//         this.markersCanvas13.addTo(this.map)
+//       }
       this.markersCanvas = new L.MarkersCanvas({opacity: 0.1})
       this.markersCanvas.addTo(this.map)
       var _this = this
 //       this.map.on('zoomend', function (e) {
-//          console.log(e)
-//          console.log(this.getZoom())
-//          if (this.getZoom() < 14) {
-//           _this.markersCanvas.setOptions({opacity:0.1})
+//          if (this.getZoom() < 15) {
+//           _this.markersCanvasZ13.remove()
 //          } else {
-//            _this.markersCanvas.setOptions({opacity:1})
+//            _this.markersCanvasZ13.addTo(this.map)
 //          }
 //       })
      
@@ -187,6 +193,11 @@ export default {
         markers.push(marker)
       })
       this.markersCanvas.addMarkers(markers)
+//       data[1].forEach(function (pos) {
+//         var marker = L.marker(pos.pt, {icon: _this.iconBlue})
+//         markers.push(marker)
+//       })
+//       this.markersCanvasZ13.addMarkers(markers)
     },
     searchData (e) {
       var _this = this
@@ -217,23 +228,23 @@ export default {
     },
     initializeView (geojson) {
       var _this = this
-      var bbox = geojson.properties.bbox
-      var latlngs = [
-         [bbox.minlat, bbox.minlon],
-         [bbox.minlat, bbox.maxlon],
-         [bbox.maxlat, bbox.maxlon],
-         [bbox.maxlat, bbox.minlon],
-         [bbox.minlat, bbox.minlon]
-      ]
-      this.bboxLayer = L.polygon(latlngs, {color: 'red', weight:1})
-      .addTo(this.map)
+//       var bbox = geojson.properties.bbox
+//       var latlngs = [
+//          [bbox.minlat, bbox.minlon],
+//          [bbox.minlat, bbox.maxlon],
+//          [bbox.maxlat, bbox.maxlon],
+//          [bbox.maxlat, bbox.minlon],
+//          [bbox.minlat, bbox.minlon]
+//       ]
+//       this.bboxLayer = L.polygon(latlngs, {color: 'red', weight:1})
+//       .addTo(this.map)
       
         
         this.dates = geojson.properties.dates.map(dt => moment( dt, 'YYYYMMDD').valueOf())
         this.keys = geojson.properties.keys
       this.polygon = L.geoJSON(
           geojson, 
-          {style() {return {weight: 1}}})
+          {style() {return {weight: 1, fillOpacity: 0.05}}})
       .addTo(this.map)
       .on('click', function (e) { _this.searchData(e)})
        this.map.fitBounds(this.polygon.getBounds())
@@ -252,8 +263,6 @@ export default {
 div[id="gdmMap"]{
  position:relative;
  width: 100%;
- float:left;
- max-width: 800px;
  margin:auto;
  min-height: 600px;
  z-index: 0;
