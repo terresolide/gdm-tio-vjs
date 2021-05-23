@@ -12,7 +12,7 @@ export default {
   columns: 0,
   tileLines: 0,
   tileCols: 0,
-  tabs: ['ns', 'ew', 'magn'],
+  tabs: ['ns', 'ew'],
   tiles: {},
   determinant: null,
   coordSystem: {
@@ -34,7 +34,7 @@ export default {
       this.tiles[tile][key] = data.data 
     }
    // this.searchValidPoints(tile, key)
-    if (!this.tiles[tile].loaded && this.tiles[tile].ns && this.tiles[tile].ew && this.tiles[tile].magn) {
+    if (!this.tiles[tile].loaded && this.tiles[tile].ns && this.tiles[tile].ew ) {
       this.tiles[tile].loaded = true
       this.searchValidPoints(tile, 'ns')
     }
@@ -83,11 +83,11 @@ export default {
               _this.loadTile('ew', tile).then(resp => {resolve()})
             }, 10)})
     ).then(
-        resp => new Promise(resolve => { // <== create a promise here
-          setTimeout(function() {
-            _this.loadTile('magn', tile).then(resp => {resolve()})
-          }, 10)})
-    ).then(
+//        resp => new Promise(resolve => { // <== create a promise here
+//          setTimeout(function() {
+//            _this.loadTile('magn', tile).then(resp => {resolve()})
+//          }, 10)})
+//    ).then(
         resp => {
           var _tile = tile
           while (_this.tiles[_tile] && _this.tiles[_tile].loaded) {

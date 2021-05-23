@@ -16,11 +16,13 @@
 <template>
   <span class="gdm-map-tio">
   <div style="position:relative;">
+
+  
 	  <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
 	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
    <tio-graph v-show="showGraph" :dates="dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
-  :magn-values="ptValues.magn" :keys="keys" @close="showGraph=false"></tio-graph>
+   :keys="keys" @close="showGraph=false"></tio-graph>
  
   
 <!--  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
@@ -43,8 +45,10 @@
 
 
 <script>
+
 var L = require("leaflet")
-require('leaflet-markers-canvas')
+// require('leaflet-markers-canvas')
+L.canvasOverlay = require('./L.image.canvas.js')
 // L.PixiOverlay = require('leaflet-pixi-overlay')
 // var parse = require('wellknown')
 import { Icon } from 'leaflet';
@@ -158,9 +162,9 @@ export default {
 //       if (this.map.getZoom() > 13) {
 //         this.markersCanvas13.addTo(this.map)
 //       }
-      this.markersCanvas = new L.MarkersCanvas({opacity: 0.1})
-      this.markersCanvas.addTo(this.map)
-      var _this = this
+//        this.markersCanvas = L.canvasOverlay()
+//        this.markersCanvas.addTo(this.map)
+//      var _this = this
 //       this.map.on('zoomend', function (e) {
 //          if (this.getZoom() < 15) {
 //           _this.markersCanvasZ13.remove()
@@ -179,7 +183,9 @@ export default {
  
     },
     addMarkers(data) {
-      var _this = this
+     // var _this = this
+      this.markersCanvas.addMarkers(data)
+      return
       var markers = []
       data.forEach(function (pos) {
         var marker = L.marker(pos.pt, {icon: _this.iconBlue})
@@ -192,7 +198,7 @@ export default {
 //         }
         markers.push(marker)
       })
-      this.markersCanvas.addMarkers(markers)
+    //  this.markersCanvas.addMarkers(markers)
 //       data[1].forEach(function (pos) {
 //         var marker = L.marker(pos.pt, {icon: _this.iconBlue})
 //         markers.push(marker)
@@ -218,13 +224,13 @@ export default {
           _this.draw('ns', resp)
         }
       })
-      TileSystem.searchData('magn', e.latlng.lat, e.latlng.lng)
-      .then(resp => {
-        _this.searching = false
-        if (resp) {
-          _this.draw('magn', resp)
-        }
-      })
+//       TileSystem.searchData('magn', e.latlng.lat, e.latlng.lng)
+//       .then(resp => {
+//         _this.searching = false
+//         if (resp) {
+//           _this.draw('magn', resp)
+//         }
+//       })
     },
     initializeView (geojson) {
       var _this = this
@@ -247,6 +253,9 @@ export default {
           {style() {return {weight: 1, fillOpacity: 0.05}}})
       .addTo(this.map)
       .on('click', function (e) { _this.searchData(e)})
+       this.markersCanvas = L.canvasOverlay(this.polygon.getBounds(), geojson.properties)
+        this.markersCanvas.addTo(this.map)
+        
        this.map.fitBounds(this.polygon.getBounds())
     },
     reset () {

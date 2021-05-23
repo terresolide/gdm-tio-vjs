@@ -5,6 +5,28 @@
     <title>Test TIO</title>
   </head>
   <body> 
+    <canvas id="canvas" width="200" height="200"></canvas>
+    <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    // Create a radial gradient
+    var gradient = ctx.createRadialGradient(50,50,2, 50,50,50);
+
+    // Add three color stops
+    gradient.addColorStop(0, 'rgba(255, 0, 0, 0.5)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+   // gradient.addColorStop(1, 'green');
+
+//     gradient.addColorStop(0, 'white');
+//     gradient.addColorStop(1, 'blue');
+
+    ctx.arc(50, 50, 50, 0, 2 * Math.PI);
+
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    </script>
 	
 	<!-- Call components -->
 	<!-- <compass-rose lang="fr" color="blue"></compass-rose>

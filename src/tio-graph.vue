@@ -127,10 +127,6 @@ export default {
       type: Array,
       default: () => []
     },
-    magnValues: {
-      type: Array,
-      default: () => []
-    },
     keys: {
       type: Array,
       default: () => []
@@ -158,6 +154,7 @@ export default {
         mean: '#ff4500',
         date: '#b600b1'
       },
+      magnValues: [],
       colors:{
         ns: 'blue',
         ew: '#f00',
@@ -297,7 +294,15 @@ export default {
 //       })
  //   },
     draw (type, tab) {
-
+      // check if it's last data composante
+      var comp2 = null
+      // case type = ns or ew and the others is ok
+      if (type === 'ns' && this.ewValues.length > 5) {
+        comp2 = this.ewValues
+      }
+      if (type === 'ew' && this.nsValues.length > 5) {
+        comp2 = this.nsValues
+      }
       // remove graph if exists
       if (this.graphs[type]) {
         this.graphs[type].destroy()
@@ -311,10 +316,21 @@ export default {
       this.position.lat = tab[0]
       this.position.lng = tab[1]
       this.position.height = tab[2]
+      if (comp2) {
+        this.magnValues[0] = tab[0]
+        this.magnValues[1] = tab[1]
+        this.magnValues[2] = tab[2]
+      }
       var index = this.keys.findIndex(tb => tb === 'velocity')
       this.point[type] = tab[index]
+      if (comp2) {
+        this.magnValues[index] = Math.round(Math.sqrt(tab[index] * tab[index] + comp2[index] * comp2[index]) * 10000) / 10000
+      }
       index = this.keys.findIndex(tb => tb === 'quality')
       var quality = Math.round(tab[index] * 100) / 100
+      if (comp2) {
+        this.magnValues[index] = Math.sqrt(tab[index] * tab[index] + comp2[index] * comp2[index])
+      }
       this.quality[type] = quality
       if (tab[index] === 0) {
         console.log('Aucune valeur')
@@ -322,6 +338,7 @@ export default {
         return
       }
       this.hasValues = true
+      var begin = this.keys.length
       tab = tab.slice(this.keys.length)
       var data = []
     
@@ -331,8 +348,17 @@ export default {
       var plotlines = []
       var regData = []
       var dates = []
+     
       // fill data
+      var _this = this
       this.dates.forEach (function (date, n) {
+        if (comp2) {
+          if (tab[n] !== null) {
+            _this.magnValues[begin + n] = Math.round(Math.sqrt(tab[n] * tab[n] + comp2[begin + n] * comp2[begin + n]) * 1000) / 1000
+          } else {
+            _this.magnValues[begin + n] = null
+          }
+        }
         if (!isNaN(tab[n]) && tab[n] !== null) {
             data.push([
               date, 
@@ -361,7 +387,7 @@ export default {
       if (data.length === 0) {
         return
       }
-      var _this = this
+      // var _this = this
      // var chartIndex = Object.keys(this.graphs).findIndex(key => key === type)
       quality = Math.round(quality * 100) / 100
       var color = this.colors[type]
@@ -389,7 +415,7 @@ export default {
               return false
             }
             var values = []
-            for (var key in _this.graphs) {
+            for (var key in _this.colors) {
               var chart = _this.graphs[key];
                if (chart && typeof chart !== 'undefined') {
                  var pt = chart.series[0].points.find(el => el.x === this.point.x )
@@ -451,6 +477,9 @@ export default {
            enableMouseTracking: false
          }   
       ]})
+      if (comp2) {
+        this.draw('magn', this.magnValues)
+      }
    },
   }
 }
