@@ -24,7 +24,7 @@ export default {
   active: null,
   initialize (data) {
     this.computeCoordSystem(data)
-    // this.loadAll(0, 0)
+    this.loadAll(0, 0)
   },
   initializeTile (tile, key, data) {
     if (!this.tiles[tile]) {
@@ -81,13 +81,14 @@ export default {
         resp => new Promise(resolve => { // <== create a promise here
             setTimeout(function() {
               _this.loadTile('ew', tile).then(resp => {resolve()})
-            }, 10)})
-    ).then(
+            }, 0)})
+//    ).then(
+//        // end draw
 //        resp => new Promise(resolve => { // <== create a promise here
 //          setTimeout(function() {
 //            _this.loadTile('magn', tile).then(resp => {resolve()})
 //          }, 10)})
-//    ).then(
+    ).then(
         resp => {
           var _tile = tile
           while (_this.tiles[_tile] && _this.tiles[_tile].loaded) {
@@ -104,7 +105,7 @@ export default {
           var next = function () {
             _this.loadAll(tileLine, tileColumn )
           }
-          setTimeout(next, 10)
+          setTimeout(next, 0)
         }
     )
     
