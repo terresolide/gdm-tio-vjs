@@ -45,9 +45,9 @@ export default {
     this.tiles[tile][key].forEach(function (line, index0) {
       line.forEach(function (col, index) {
         if (col[3] !== null) {
-          if ((index0 + index) % 3 === 0) {
-            points.push({pt:[col[0], col[1]], value:col[66]})
-          } 
+         // if ((index0 + index) % 3 === 0) {
+            points.push({pt:[col[0], col[1]], value:col[3]})
+        //  } 
 //          else {
 //            points13.push({pt:[col[0], col[1]], value:col[66]})
 //          }

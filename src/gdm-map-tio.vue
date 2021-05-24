@@ -140,6 +140,7 @@ export default {
       })
       this.marker = L.marker([4, 50])
       this.marker.addTo(this.map)
+      var _this = this
       this.marker.on('click', function (e) {
           _this.showGraph = true
       })
@@ -184,7 +185,7 @@ export default {
     },
     addMarkers(data) {
      // var _this = this
-      this.markersCanvas.addMarkers(data)
+      this.markersCanvas.addMarkers(data, 0)
       return
       var markers = []
       data.forEach(function (pos) {
