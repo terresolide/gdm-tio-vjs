@@ -12,6 +12,10 @@ export default {
   columns: 0,
   tileLines: 0,
   tileCols: 0,
+  tile: {
+    lines: 100,
+    columns: 100
+  },
   tabs: ['ns', 'ew'],
   tiles: {},
   determinant: null,
@@ -22,6 +26,7 @@ export default {
   },
   parent: null,
   active: null,
+  images: [],
   initialize (data) {
     this.computeCoordSystem(data)
     this.loadAll(0, 0)
@@ -54,7 +59,7 @@ export default {
         }
       })
     })
-    if (this.parent) {
+    if (this.parent && this.images.length === 0) {
       this.parent.addMarkers(points)
     }
   },
@@ -78,10 +83,9 @@ export default {
     var tile = tileLine.toString().padStart(3, '0') + '_' + tileColumn.toString().padStart(3, '0')
     this.loadTile('ns', tile)
     .then(
-        resp => new Promise(resolve => { // <== create a promise here
-            setTimeout(function() {
-              _this.loadTile('ew', tile).then(resp => {resolve()})
-            }, 0)})
+        resp => {return _this.loadTile('ew', tile)}
+
+       
 //    ).then(
 //        // end draw
 //        resp => new Promise(resolve => { // <== create a promise here
@@ -102,10 +106,10 @@ export default {
             _tile = tileLine.toString().padStart(3, '0') + '_' + tileColumn.toString().padStart(3, '0')
           }
          
-          var next = function () {
+         // var next = function () {
             _this.loadAll(tileLine, tileColumn )
-          }
-          setTimeout(next, 0)
+//          }
+//          setTimeout(next, 0)
         }
     )
     
@@ -142,12 +146,12 @@ export default {
       return false
     }
     var tile = {
-      line: Math.floor(Math.round(line) / 100) + '',
-      col: Math.floor(Math.round(col) / 100) + ''
+      line: Math.floor(Math.round(line) / this.tile.lines) + '',
+      col: Math.floor(Math.round(col) / this.tile.columns) + ''
     }
     tile = tile.line.padStart(3, '0') + '_' + tile.col.padStart(3, '0')
     
-    return {tile: tile, line: Math.round(line) % 100, col: Math.round(col) % 100}
+    return {tile: tile, line: Math.round(line) % this.tile.lines, col: Math.round(col) % this.tile.columns}
   },
   searchData (type, lat, lng) {
     var pos = this.changeFrame(lat, lng)
@@ -160,8 +164,15 @@ export default {
   computeCoordSystem (data) {
       this.lines = data.properties.nb_lines
       this.columns = data.properties.nb_columns
-      this.tileLines = Math.floor(this.lines / 100)
-      this.tileCols = Math.floor(this.columns / 100)
+      if (data.properties.tile) {
+        this.tile.lines = data.properties.tile.nb_lines
+        this.tile.columns = data.properties.tile.nb_columns
+      }
+      if (data.properties.images) {
+        this.images = data.properties.images
+      }
+      this.tileLines = Math.floor(this.lines / this.tile.lines)
+      this.tileCols = Math.floor(this.columns / this.tile.columns)
       var lastLine = data.properties.nb_lines - 1
       var lastCol = data.properties.nb_columns - 1
       var pointTL = data.properties.pointTL

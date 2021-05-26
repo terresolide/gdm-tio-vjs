@@ -52,9 +52,21 @@
           </div>
           
         </div>
-        <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')"></div>
-        <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')"></div>
-        <div id="graph_magn" :style="{height:height + 'px'}" @mousemove="highlight($event, 'magn')"></div>
+        <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')">
+           <div class="my-spinner">
+              <span class="fa fa-spinner fa-spin fa-2x fa-fw"></span>
+           </div>
+        </div>
+        <div id="graph_ew" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ew')">
+            <div class="my-spinner">
+              <span class="fa fa-spinner fa-spin fa-2x fa-fw"></span>
+           </div>
+        </div>
+        <div id="graph_magn" :style="{height:height + 'px'}" @mousemove="highlight($event, 'magn')">
+          <div class="my-spinner">
+              <span class="fa fa-spinner fa-spin fa-2x fa-fw"></span>
+           </div>
+        </div>
      </div>
 </div>
 </template>
@@ -109,6 +121,7 @@ if (typeof Highcharts === 'object') {
 Highcharts.Pointer.prototype.reset = function () {
   return undefined;
 };
+ 
 export default {
   name: 'tioGraph',
   components: {
@@ -293,6 +306,15 @@ export default {
 //         }
 //       })
  //   },
+    addSpinner (type) {
+       var spinner = document.createElement('div')
+       spinner.setAttribute('class', 'my-spinner')
+       var content = document.createElement('span')
+       content.setAttribute('class', 'fa fa-spinner fa-spin fa-2x fa-fw')
+       spinner.appendChild(content)
+       this.$el.querySelector('#graph_' + type).appendChild(spinner)
+       
+    },
     draw (type, tab) {
       // check if it's last data composante
       var comp2 = null
@@ -307,6 +329,7 @@ export default {
       if (this.graphs[type]) {
         this.graphs[type].destroy()
         this.graphs[type] = null
+        this.addSpinner(type)
       }
 //       var tab = this[type]
 //       if (!tab || !tab[row] || !tab[row][col]) {
@@ -417,11 +440,12 @@ export default {
             var values = []
             for (var key in _this.colors) {
               var chart = _this.graphs[key];
-               if (chart && typeof chart !== 'undefined') {
+              if (chart && typeof chart !== 'undefined') {
                  var pt = chart.series[0].points.find(el => el.x === this.point.x )
-                 _this.pointDate[key] = pt.open
-                 
-                 values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
+                 if (pt !== undefined) {
+                   _this.pointDate[key] = pt.open
+                   values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
+                 }
                }
                if (key !== type) {
                  chart.tooltip.hide();
@@ -441,9 +465,15 @@ export default {
 //              setExtremes (e) {
 //                _this.syncExtremes(e, type)
 //              },
-//              afterSetExtremes (e) {
-//                _this.updateExtremes(e)
-//              }
+             afterSetExtremes (e) {
+               var xMin = e.min
+               var xMax = e.max
+               for(var key in _this.graphs) {
+                 if (key !== type && _this.graphs[key]) {
+                   _this.graphs[key].xAxis[0].setExtremes(xMin, xMax, true, false)
+                 }
+               }
+             }
            },
            gridLineWidth: 0,
            plotLines: plotlines,
@@ -496,6 +526,18 @@ export default {
     border-radius: 0 0 5px 5px;
     background: white;
     box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+    z-index:11;
+}
+.my-spinner {
+  display:block;
+  text-align: center;
+  vertical-align: middle;
+  color: grey;
+  height:100%;
+  line-height: 150px;
+}
+.my-spinner > span {
+  vertical-align: middle;
 }
 .graph-container .tio-element {
   font-color: darkgrey;

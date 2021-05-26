@@ -17,7 +17,7 @@
   <span class="gdm-map-tio">
   <div style="position:relative;">
 
-  
+  <!--    <div @click="download">DOWNLOAD</div> -->
 	  <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
 	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
@@ -90,6 +90,7 @@ export default {
   		//	markersCanvasZ13: null,
   			bboxLayer: null,
   			polygon: null,
+  			imageOverlay: null,
   			keys: [],
   			dates: [],
   			searching: false,
@@ -120,6 +121,9 @@ export default {
       this.height = window.innerHeight
   },
   methods: {
+    download () {
+      this.markersCanvas.download()
+    },
     draw (type, data) {
       this.$set(this.ptValues, type, data.values)
       this.marker.setLatLng([data.values[0], data.values[1]])
@@ -258,6 +262,12 @@ export default {
         this.markersCanvas.addTo(this.map)
         
        this.map.fitBounds(this.polygon.getBounds())
+       if (geojson.properties.images && geojson.properties.images.length > 0) {
+         // add image layer
+         var img = geojson.properties.images[0]
+         this.imageOverlay = L.imageOverlay(this.directory + '/' + img.src, this.polygon.getBounds())
+         this.imageOverlay.addTo(this.map)
+       }
     },
     reset () {
       // remove bbox layer et polygon
