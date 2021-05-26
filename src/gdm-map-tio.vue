@@ -58,7 +58,7 @@ Icon.Default.mergeOptions({
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
- const TioGraph = () => import('./tio-graph.vue')
+import TioGraph from './tio-graph.vue'
 // import TioGraph from './tio-graph.vue'
 import TileSystem from './tile-system.js'
 import moment from 'moment'
