@@ -22,7 +22,7 @@
         <div class="fa fa-close" @click="$emit('close')"></div>
         <h4  @mousedown="movestart">{{$t('plot_point').toUpperCase()}}</h4>
       </div>
-	    <div class="graph-infos" style="overflow:scroll;" :style="{height: (windowHeight - 30) + 'px'}">
+	    <div class="graph-infos" style="overflow:auto;" :style="{height: (windowHeight - 30) + 'px'}">
 	      <div style="display:flex;justify-content: space-between;">
           <div class="tio-element" v-if="position.lat" >
           <label>POSITION</label>
@@ -355,7 +355,7 @@ export default {
         this.magnValues[index] = Math.sqrt(tab[index] * tab[index] + comp2[index] * comp2[index])
       }
       this.quality[type] = quality
-      if (tab[index] === 0) {
+      if (!tab[index] || tab[index] === 0) {
         console.log('Aucune valeur')
         this.hasValues = false
         return

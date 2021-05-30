@@ -120,6 +120,12 @@ export default {
   loadTile (type, tile) {
     var _this = this
     return new Promise((successCallback, failureCallback) => {
+      if (tile === false) {
+        if (failureCallback) {
+          failureCallback()
+        }
+        return false
+      }
       if (_this.tiles[tile] && _this.tiles[tile].loaded) {
         if (successCallback) {
           successCallback()
@@ -139,11 +145,11 @@ export default {
   changeFrame (lat, lng) {
     var line = (this.coordSystem.u.dLng * (lat - this.coordSystem.origin.lat) - this.coordSystem.u.dLat * (lng- this.coordSystem.origin.lng)) / this.determinant
     var col = (this.coordSystem.v.dLat * (lng- this.coordSystem.origin.lng) - this.coordSystem.v.dLng * (lat - this.coordSystem.origin.lat)) / this.determinant
-    if (line > this.lines) {
-      return false
+    if (line > this.lines || line < 0) {
+      return {tile: false}
     }
-    if (col > this.columns ) {
-      return false
+    if (col > this.columns || col < 0 ) {
+      return {tile: false}
     }
     var tile = {
       line: Math.floor(Math.round(line) / this.tile.lines) + '',
@@ -158,7 +164,8 @@ export default {
     var _this = this
       
     return  this.loadTile(type, pos.tile).then(
-      resp => {return {values: this.tiles[pos.tile][type][pos.line][pos.col]}}
+      resp => {return {values: this.tiles[pos.tile][type][pos.line][pos.col]}},
+      resp => {return false}
     )
   },
   computeCoordSystem (data) {

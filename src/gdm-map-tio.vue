@@ -146,7 +146,12 @@ export default {
       this.marker.addTo(this.map)
       var _this = this
       this.marker.on('click', function (e) {
+        if (_this.ptValues.ew.length > 0 || _this.ptValues.ns.length > 0) {
           _this.showGraph = true
+        }
+      })
+      this.map.on('click',  function (e) {
+        _this.searchData(e)
       })
 //       this.iconRed = L.icon({
 //         iconUrl: require('./assets/img/pointRed.png'),
@@ -158,11 +163,11 @@ export default {
 //         iconSize: [1, 1],
 //         iconAnchor: [0, 0],
 //       })
-      this.iconBlue = L.icon({
-        iconUrl: require('./assets/img/pointBlue.png'),
-        iconSize: [1, 1],
-        iconAnchor: [0, 0],
-      })
+//       this.iconBlue = L.icon({
+//         iconUrl: require('./assets/img/pointBlue.png'),
+//         iconSize: [1, 1],
+//         iconAnchor: [0, 0],
+//       })
 //       this.markersCanvasZ13 = new L.MarkersCanvas()
 //       if (this.map.getZoom() > 13) {
 //         this.markersCanvas13.addTo(this.map)
@@ -212,21 +217,27 @@ export default {
     },
     searchData (e) {
       var _this = this
-      this.ptValues = {ew: [], ns: [], magn: []}
+      this.ptValues = {ew: [], ns: []}
+      this.showGraph = false
       this.searching = true
       this.$forceUpdate()
       TileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
       .then(resp => {
         _this.searching = false
-        if (resp) {
-          _this.draw('ew', resp)
+        console.log(resp)
+         if (resp && resp.values && resp.values[3] !== null) {
+           _this.draw('ew', resp)
+        } else {
+          this.marker.setLatLng(e.latlng)
         }
       })
       TileSystem.searchData('ns', e.latlng.lat, e.latlng.lng)
       .then(resp => {
         _this.searching = false
-        if (resp) {
-          _this.draw('ns', resp)
+        if (resp && resp.values && resp.values[3] !== null) {
+           _this.draw('ns', resp)
+        } else {
+          this.marker.setLatLng(e.latlng)
         }
       })
 //       TileSystem.searchData('magn', e.latlng.lat, e.latlng.lng)
@@ -257,7 +268,7 @@ export default {
           geojson, 
           {style() {return {weight: 1, fillOpacity: 0.05}}})
       .addTo(this.map)
-      .on('click', function (e) { _this.searchData(e)})
+     // .on('click', function (e) { _this.searchData(e)})
        this.markersCanvas = L.canvasOverlay(this.polygon.getBounds(), geojson.properties)
         this.markersCanvas.addTo(this.map)
         
