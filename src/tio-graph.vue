@@ -4,14 +4,12 @@
      "by_date": "By date",
      "height": "Hauteur",
      "plot_point": "Données du point sélectionné",
-     "mean_velocity": "Vitesse moyenne",
      "QUALITY": "QUALITÉ"
   },
   "en": {
      "by_date": "Par date",
      "height": "Height",
      "plot_point": "Data of the selected point",
-     "mean_velocity": "Mean velocity",
      "QUALITY": "QUALITY"
   }
 }
@@ -43,13 +41,13 @@
           <div><label>MAGN:</label> {{quality.magn}}</div>
           </div>
           <div >
-            <compass-rose :lang="lang" :width="100" :height="100" :max="0.005" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
-            :color2="compassColors.date" :date-ns="pointDate.ns" :date-ew="pointDate.ew"></compass-rose>
+            <compass-rose :lang="lang" :width="100" :height="100" :max-velocity="0.005" :max-comp="6" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
+            :color2="compassColors.date" :date-ns="pointDate.ns" :date-ew="pointDate.ew" :date-str="pointDate.date"></compass-rose>
           </div>
-           <div class="tio-element" style="">
+         <!--    <div class="tio-element" style="">
           <div :style="{color: compassColors.mean}"><label >&rarr;</label> {{$t('mean_velocity')}}</div>
           <div :style="{color:compassColors.date}"><label >&rarr;</label> {{ pointDate.date || $t('by_date')}}</div>
-          </div>
+          </div> -->
           
         </div>
         <div id="graph_ns" :style="{height:height + 'px'}" @mousemove="highlight($event, 'ns')">
@@ -151,6 +149,10 @@ export default {
     lang: {
       type: String,
       default: 'en'
+    },
+    maximum: {
+      type: Number,
+      default: null
     }
   },
   data () {
@@ -177,7 +179,8 @@ export default {
       mouseupListener: null,
       selected: false,
       delta: {x: 0, y:0},
-      pos: {x:0, y:0}
+      pos: {x:0, y:0},
+      maxComp: null
     }
   },
   watch: {
@@ -200,6 +203,7 @@ export default {
   },
   created () {
     this.$i18n.locale = this.lang
+    moment.locale(this.lang)
     this.windowResizeListener = this.initSize.bind(this)
     window.addEventListener('resize', this.windowResizeListener)
       this.mousemoveListener = this.move.bind(this)
@@ -271,10 +275,16 @@ export default {
       var point = this.graphs[type].series[0].searchPoint(event, true);
       if (!point) {
         return
-      }        
+      }  
+      this.pointDate.date = moment.unix(point.x / 1000).format('ll')
+      this.pointDate[type] = point.open
       for (var key in this.graphs) {
         var chart = this.graphs[key];
         if (chart && typeof chart !== 'undefined') {
+          var pt = chart.series[0].points.find(el => el.x === this.point.x )
+          if (pt !== undefined) {
+           this.pointDate[key] = pt.open
+          }
           chart.xAxis[0].removePlotLine('highlight')
           chart.xAxis[0].addPlotLine({
            color: '#999999',
@@ -374,10 +384,14 @@ export default {
      
       // fill data
       var _this = this
+      this.maxComp = 0
       this.dates.forEach (function (date, n) {
         if (comp2) {
           if (tab[n] !== null) {
             _this.magnValues[begin + n] = Math.round(Math.sqrt(tab[n] * tab[n] + comp2[begin + n] * comp2[begin + n]) * 1000) / 1000
+            if (_this.maxComp < _this.magnValues[begin + n]) {
+              _this.maxComp = _this.magnValues[begin + n]
+            }
           } else {
             _this.magnValues[begin + n] = null
           }

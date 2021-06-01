@@ -1,16 +1,20 @@
 <i18n>
 {
   "en": {
-     "symbol_west": "W"
+     "symbol_west": "W",
+     "mean_velocity": "Mean Velocity",
+     "meter_day": "m/day"
    },
    "fr": {
-     "symbol_west": "O"
+     "symbol_west": "O",
+     "mean_velocity": "Vitesse moyenne",
+     "meter_day": "m/jour"
    }
 }
 </i18n>
 <template>
 <div> 
- <svg class="compass-rose" xmlns="http://www.w3.org/2000/svg" :style="{width: width + 'px', height: height + 'px'}" :width="size.width" :height="size.height" :viewBox="'0 0 ' + size.width + ' ' + size.height">
+ <svg class="compass-rose" xmlns="http://www.w3.org/2000/svg" :style="{width: 2 * width + 'px', height: height + 'px'}" :width="size.width" :height="size.height" :viewBox="'0 0 ' + size.width + ' ' + size.height">
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" 
     refX="2.5" refY="3.5" orient="auto">
@@ -19,6 +23,11 @@
      <marker id="arrowhead2" markerWidth="10" markerHeight="7" 
     refX="2.5" refY="3.5" orient="auto">
       <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" :fill="color2"/>
+    </marker>
+    <marker id="hyphen" viewBox="0 0 0 10" refX="0" refY="5"
+        markerWidth="6" markerHeight="6">
+        
+      <line x1="0" y1="0" x2="0" y2="10" :stroke="color" />
     </marker>
   </defs>
  <!--  <g>
@@ -29,11 +38,11 @@
    <circle :cx="center.x" :cy="center.y" :r="radius - 2" stroke="#000" stroke-width="2" fill="transparent" />
    <line :x1="center.x" :y1="center.y - radius" :x2="center.x" :y2="center.y + radius" stroke="#000"/>
    <line :x1="center.x - radius" :y1="center.y" :x2="center.x + radius" :y2="center.y" stroke="#000"/>
-   <text :x="center.x" :y="center.y - radius - 5" text-anchor="middle">N</text>
-   <text :x="center.x" :y="center.y + radius + 18" text-anchor="middle">S</text>
-   <text :x="center.x - radius - 3" :y="center.y + 6" text-anchor="end" 
+   <text class="card" :x="center.x" :y="center.y - radius - 5" text-anchor="middle">N</text>
+   <text class="card" :x="center.x" :y="center.y + radius + 18" text-anchor="middle">S</text>
+   <text class="card" :x="center.x - radius - 3" :y="center.y + 6" text-anchor="end" 
    style="">{{$t('symbol_west')}}</text>
-   <text :x="center.x + radius + 3" :y="center.y + 6" text-anchor="start">E</text>
+   <text class="card" :x="center.x + radius + 3" :y="center.y + 6" text-anchor="start">E</text>
 </g>
 <g>
   <line :x1="center.x" :y1="center.y" :x2="point.x" :y2="point.y" :stroke="color" 
@@ -41,6 +50,32 @@
     <line v-if="ptDate" :x1="center.x" :y1="center.y" :x2="ptDate.x" :y2="ptDate.y" :stroke="color2" 
   stroke-width="2" marker-end="url(#arrowhead2)" />
 </g>
+<g>
+   <text :fill="color" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.25 - 30"
+   :color="color" text-anchor="middle">
+   {{$t('mean_velocity')}} 
+   </text>
+    <text :fill="color" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.25 - 10" text-anchor="middle">
+    {{maxVelocity}} {{$t('meter_day')}}
+   </text>
+  <line :x1="size.width * 0.65" :x2="size.width * 0.65 + radius" :y1="size.height * 0.25" :y2="size.height * 0.25" :stroke="color" 
+  stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  
+ </g>
+ <g>
+   <text :fill="color2" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.55 - 30"
+   :color="color" text-anchor="middle">
+   {{dateStr}} 
+   </text>
+    <text :fill="color2" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.55 - 10" text-anchor="middle">
+    {{maxComp}} m
+   </text>
+ 
+  
+   <line :x1="size.width * 0.65" :x2="size.width * 0.65 + radius" :y1="size.height * 0.55" :y2="size.height * 0.55" :stroke="color2" 
+  stroke-width="2" marker-end="url(#arrowhead2)"/>
+ </g>
  </svg>
 </div>
 </template>
@@ -60,7 +95,11 @@ export default {
       type: Number,
       default: 150
     },
-    max: {
+    maxVelocity: {
+      type: Number,
+      default: 6
+    },
+    maxComp: {
       type: Number,
       default: 6
     },
@@ -71,6 +110,10 @@ export default {
     ew: {
       type: Number,
       default: 3
+    },
+    dateStr: {
+      type: String,
+      default: null
     },
     dateNs: {
       type: Number,
@@ -92,7 +135,7 @@ export default {
   data () {
     return {
       size: {
-        width: 250,
+        width: 500,
         height: 250
       },
       center: {
@@ -104,14 +147,14 @@ export default {
   },
   computed: {
     point () {
-      var x = (-1) * this.ew * this.radius / this.max + this.center.x
-      var y = this.ns * this.radius / this.max + this.center.y
+      var x = this.ew * this.radius / this.maxVelocity + this.center.x
+      var y = this.ns * this.radius / this.maxVelocity + this.center.y
       return {x: x, y: y}
     },
     ptDate () {
       if (this.dateEw && this.dateNs) {
-        var x = (-1) * this.dateEw * this.radius / 6 + this.center.x
-        var y = this.dateNs * this.radius / 6 + this.center.y
+        var x = this.dateEw * this.radius / this.maxComp + this.center.x
+        var y = this.dateNs * this.radius / this.maxComp + this.center.y
         return {x: x, y: y}
       } else {
         return null
@@ -119,7 +162,7 @@ export default {
     }
   },
   created () {
-    this.center.x = this.size.width / 2
+    this.center.x = this.size.width / 4
     this.center.y = this.size.height / 2
     this.$i18n.locale = this.lang
   }
@@ -127,8 +170,12 @@ export default {
 </script>
 <style>
 svg.compass-rose text {
+ font-size: 24px;
+}
+svg.compass-rose text.card {
  font-family: century-gothic, sans-serif;
  font-weight:700;
  font-size:18px;
 }
+
 </style>

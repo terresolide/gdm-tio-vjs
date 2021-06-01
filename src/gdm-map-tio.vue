@@ -16,13 +16,12 @@
 <template>
   <span class="gdm-map-tio">
   <div style="position:relative;">
-
   <!--    <div @click="download">DOWNLOAD</div> -->
 	  <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
 	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
    <tio-graph v-show="showGraph" :dates="dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
-   :keys="keys" @close="showGraph=false"></tio-graph>
+   :keys="keys" :maximum="max" :lang="lang" @close="showGraph=false"></tio-graph>
  
   
 <!--  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
@@ -47,9 +46,11 @@
 <script>
 
 var L = require("leaflet")
-// require('leaflet-markers-canvas')
+require('leaflet-markers-canvas')
+require('leaflet-imageoverlay-rotated')
 L.canvasOverlay = require('./L.image.canvas.js')
-// L.PixiOverlay = require('leaflet-pixi-overlay')
+import * as PIXI from 'pixi.js'
+require('leaflet-pixi-overlay')
 // var parse = require('wellknown')
 import { Icon } from 'leaflet';
 delete Icon.Default.prototype._getIconUrl;
@@ -87,10 +88,12 @@ export default {
   			},
   			marker: null,
   			markersCanvas: null,
+  			imageCanvas: null,
   		//	markersCanvasZ13: null,
   			bboxLayer: null,
   			polygon: null,
   			imageOverlay: null,
+  			pixiOverlay: null,
   			keys: [],
   			dates: [],
   			searching: false,
@@ -99,7 +102,8 @@ export default {
   			iconGrey: null,
   			arrowIcon: null,
   			showGraph: false,
-  			height: 500
+  			height: 500,
+  			max: null
 		}
   },
 //   watch: {
@@ -153,6 +157,9 @@ export default {
       this.map.on('click',  function (e) {
         _this.searchData(e)
       })
+      this.pixiOverlay = L.pixiOverlay(function(utils) {
+        // your drawing code here
+      }, new PIXI.Container());
 //       this.iconRed = L.icon({
 //         iconUrl: require('./assets/img/pointRed.png'),
 //         iconSize: [1, 1],
@@ -258,12 +265,19 @@ export default {
 //          [bbox.maxlat, bbox.minlon],
 //          [bbox.minlat, bbox.minlon]
 //       ]
-//       this.bboxLayer = L.polygon(latlngs, {color: 'red', weight:1})
-//       .addTo(this.map)
+     
       
-        
+        this.max = Math.max(geojson.properties.percentile_90_ew, geojson.properties.percentile_90_ns)
         this.dates = geojson.properties.dates.map(dt => moment( dt, 'YYYYMMDD').valueOf())
         this.keys = geojson.properties.keys
+//         var latlngs = [
+//           geojson.properties.pointTL,
+//           geojson.properties.pointTR,
+//           geojson.properties.pointBR,
+//           geojson.properties.pointBL
+//         ]
+//         this.polygon = L.polygon(latlngs)
+//         this.polygon.addTo(this.map)
       this.polygon = L.geoJSON(
           geojson, 
           {style() {return {weight: 1, fillOpacity: 0.05}}})
@@ -271,13 +285,19 @@ export default {
      // .on('click', function (e) { _this.searchData(e)})
        this.markersCanvas = L.canvasOverlay(this.polygon.getBounds(), geojson.properties)
         this.markersCanvas.addTo(this.map)
-        
+       this.imageOverlay = L.imageOverlay.rotated(
+           this.directory + '/' + geojson.properties.images[0].src,
+           [geojson.properties.pointTL[1], geojson.properties.pointTL[0]], 
+           [geojson.properties.pointTR[1], geojson.properties.pointTR[0]],
+           [geojson.properties.pointBL[1], geojson.properties.pointBL[0]],
+           {opacity: 0.5})
+       this.imageOverlay.addTo(this.map)
        this.map.fitBounds(this.polygon.getBounds())
        if (geojson.properties.images && geojson.properties.images.length > 0) {
          // add image layer
          var img = geojson.properties.images[0]
-         this.imageOverlay = L.imageOverlay(this.directory + '/' + img.src, this.polygon.getBounds())
-         this.imageOverlay.addTo(this.map)
+//          this.imageOverlay = L.imageOverlay(this.directory + '/' + img.src, this.polygon.getBounds())
+//          this.imageOverlay.addTo(this.map)
        }
     },
     reset () {

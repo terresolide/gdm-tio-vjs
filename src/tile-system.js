@@ -29,7 +29,7 @@ export default {
   images: [],
   initialize (data) {
     this.computeCoordSystem(data)
-    this.loadAll(0, 0)
+    // this.loadAll(0, 0)
   },
   initializeTile (tile, key, data) {
     if (!this.tiles[tile]) {
@@ -185,16 +185,16 @@ export default {
       var pointTL = data.properties.pointTL
       var pointTR = data.properties.pointTR
       var pointBL = data.properties.pointBL
-      this.coordSystem.origin = {lat: pointTL[0], lng: pointTL[1]}
+      this.coordSystem.origin = {lat: pointTL[1], lng: pointTL[0]}
       // column
       this.coordSystem.u = {
-        dLat: (pointTR[0] - pointTL[0]) / lastCol,
-        dLng: (pointTR[1] - pointTL[1]) / lastCol
+        dLat: (pointTR[1] - pointTL[1]) / lastCol,
+        dLng: (pointTR[0] - pointTL[0]) / lastCol
       }
       // line
       this.coordSystem.v = {
-        dLat: (pointBL[0] - pointTL[0]) / lastLine,
-        dLng: (pointBL[1] - pointTL[1]) / lastLine
+        dLat: (pointBL[1] - pointTL[1]) / lastLine,
+        dLng: (pointBL[0] - pointTL[0]) / lastLine
 
       }
       this.determinant = this.coordSystem.u.dLng * this.coordSystem.v.dLat - this.coordSystem.u.dLat * this.coordSystem.v.dLng
