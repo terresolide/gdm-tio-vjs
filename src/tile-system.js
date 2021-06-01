@@ -29,7 +29,7 @@ export default {
   images: [],
   initialize (data) {
     this.computeCoordSystem(data)
-    // this.loadAll(0, 0)
+    this.loadAll(0, 0)
   },
   initializeTile (tile, key, data) {
     if (!this.tiles[tile]) {
