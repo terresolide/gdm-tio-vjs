@@ -46,11 +46,11 @@
 <script>
 
 var L = require("leaflet")
-require('leaflet-markers-canvas')
+// require('leaflet-markers-canvas')
 require('leaflet-imageoverlay-rotated')
-L.canvasOverlay = require('./L.image.canvas.js')
-import * as PIXI from 'pixi.js'
-require('leaflet-pixi-overlay')
+// L.canvasOverlay = require('./L.image.canvas.js')
+// import * as PIXI from 'pixi.js'
+// require('leaflet-pixi-overlay')
 // var parse = require('wellknown')
 import { Icon } from 'leaflet';
 delete Icon.Default.prototype._getIconUrl;
@@ -61,7 +61,7 @@ Icon.Default.mergeOptions({
 });
 import TioGraph from './tio-graph.vue'
 // import TioGraph from './tio-graph.vue'
-import TileSystem from './tile-system.js'
+import TileSystem from './modules/tile-system.js'
 import moment from 'moment'
 export default {
   name: 'GdmMapTio',
@@ -125,9 +125,9 @@ export default {
       this.height = window.innerHeight
   },
   methods: {
-    download () {
-      this.markersCanvas.download()
-    },
+//     download () {
+//       this.markersCanvas.download()
+//     },
     draw (type, data) {
       this.$set(this.ptValues, type, data.values)
       this.marker.setLatLng([data.values[0], data.values[1]])
@@ -138,16 +138,16 @@ export default {
       this.map = L.map( container, {scrollWheelZoom: true}).setView([51.505, -0.09], 2);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-        preferCanvas: true
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        // preferCanvas: true
       }).addTo(this.map);
-      this.arrowIcon = L.icon({
-        iconUrl: require('./assets/img/arrow.png'),
-        iconSize: [30, 30],
-        iconAnchor: [0, 30]
-      })
+//       this.arrowIcon = L.icon({
+//         iconUrl: require('./assets/img/arrow.png'),
+//         iconSize: [30, 30],
+//         iconAnchor: [0, 30]
+//       })
       this.marker = L.marker([4, 50])
-      this.marker.addTo(this.map)
+      
       var _this = this
       this.marker.on('click', function (e) {
         if (_this.ptValues.ew.length > 0 || _this.ptValues.ns.length > 0) {
@@ -155,11 +155,12 @@ export default {
         }
       })
       this.map.on('click',  function (e) {
+        _this.marker.addTo(_this.map)
         _this.searchData(e)
       })
-      this.pixiOverlay = L.pixiOverlay(function(utils) {
-        // your drawing code here
-      }, new PIXI.Container());
+//       this.pixiOverlay = L.pixiOverlay(function(utils) {
+//         // your drawing code here
+//       }, new PIXI.Container());
 //       this.iconRed = L.icon({
 //         iconUrl: require('./assets/img/pointRed.png'),
 //         iconSize: [1, 1],
@@ -199,29 +200,29 @@ export default {
        // L.rectangle(poly.getBounds(), {color: 'green', weight: 1, opacity:0.1}).addTo(this.map)
  
     },
-    addMarkers(data) {
-     // var _this = this
-      this.markersCanvas.addMarkers(data, 0)
-      return
-      var markers = []
-      data.forEach(function (pos) {
-        var marker = L.marker(pos.pt, {icon: _this.iconBlue})
-//         if (pos.value > 0.5) {
-//           var marker = L.marker(pos.pt, {icon: _this.iconRed, opacity: Math.max(1, pos.value / 5)})
-//         } else if (pos.value < 0.5) {
-//           var marker = L.marker(pos.pt, {icon: _this.iconBlue, opacity: Math.max(1, pos.value / (-5))})
-//         } else {
-//           var marker = L.marker(pos.pt, {icon: _this.iconGrey})
-//         }
-        markers.push(marker)
-      })
-    //  this.markersCanvas.addMarkers(markers)
-//       data[1].forEach(function (pos) {
+//     addMarkers(data) {
+//      // var _this = this
+//       this.markersCanvas.addMarkers(data, 0)
+//       return
+//       var markers = []
+//       data.forEach(function (pos) {
 //         var marker = L.marker(pos.pt, {icon: _this.iconBlue})
+// //         if (pos.value > 0.5) {
+// //           var marker = L.marker(pos.pt, {icon: _this.iconRed, opacity: Math.max(1, pos.value / 5)})
+// //         } else if (pos.value < 0.5) {
+// //           var marker = L.marker(pos.pt, {icon: _this.iconBlue, opacity: Math.max(1, pos.value / (-5))})
+// //         } else {
+// //           var marker = L.marker(pos.pt, {icon: _this.iconGrey})
+// //         }
 //         markers.push(marker)
 //       })
-//       this.markersCanvasZ13.addMarkers(markers)
-    },
+//     //  this.markersCanvas.addMarkers(markers)
+// //       data[1].forEach(function (pos) {
+// //         var marker = L.marker(pos.pt, {icon: _this.iconBlue})
+// //         markers.push(marker)
+// //       })
+// //       this.markersCanvasZ13.addMarkers(markers)
+//     },
     searchData (e) {
       var _this = this
       this.ptValues = {ew: [], ns: []}
@@ -283,8 +284,8 @@ export default {
           {style() {return {weight: 1, fillOpacity: 0.05}}})
       .addTo(this.map)
      // .on('click', function (e) { _this.searchData(e)})
-       this.markersCanvas = L.canvasOverlay(this.polygon.getBounds(), geojson.properties)
-        this.markersCanvas.addTo(this.map)
+//        this.markersCanvas = L.canvasOverlay(this.polygon.getBounds(), geojson.properties)
+//         this.markersCanvas.addTo(this.map)
        this.imageOverlay = L.imageOverlay.rotated(
            this.directory + '/' + geojson.properties.images[0].src,
            [geojson.properties.pointTL[1], geojson.properties.pointTL[0]], 
@@ -293,12 +294,12 @@ export default {
            {opacity: 0.5})
        this.imageOverlay.addTo(this.map)
        this.map.fitBounds(this.polygon.getBounds())
-       if (geojson.properties.images && geojson.properties.images.length > 0) {
-         // add image layer
-         var img = geojson.properties.images[0]
-//          this.imageOverlay = L.imageOverlay(this.directory + '/' + img.src, this.polygon.getBounds())
-//          this.imageOverlay.addTo(this.map)
-       }
+//        if (geojson.properties.images && geojson.properties.images.length > 0) {
+//          // add image layer
+//          var img = geojson.properties.images[0]
+// //          this.imageOverlay = L.imageOverlay(this.directory + '/' + img.src, this.polygon.getBounds())
+// //          this.imageOverlay.addTo(this.map)
+//        }
     },
     reset () {
       // remove bbox layer et polygon
