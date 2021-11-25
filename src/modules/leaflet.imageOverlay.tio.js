@@ -15,10 +15,10 @@ Icon.Default.mergeOptions({
 })
 import moment from 'moment'
 
-import TileSystem from './modules/tile-system.js'
+import TileSystem from './tile-system.js'
 
 
-L.TioLayer = L.ImageOverlay.Rotated.extend({
+L.ImageOverlay.Tio = L.ImageOverlay.Rotated.extend({
   // includes: L.Mixin.Events,
   _marker: null,
   _polygon: null,
@@ -31,6 +31,7 @@ L.TioLayer = L.ImageOverlay.Rotated.extend({
   },
   initialize (directory)
   {
+    console.log(directory)
     this._directory = directory
     var _this = this
     TileSystem.load(directory)
@@ -38,13 +39,18 @@ L.TioLayer = L.ImageOverlay.Rotated.extend({
   },
   onAdd (map)
   {
-    this._map = map
+    L.ImageOverlay.Rotated.prototype.onAdd.call(this, map)
     this._polygon.addTo(map)
-    this._map.fitBounds(this._polygon.getBounds())
+    this._map.fitBounds(this._polygon.getBounds()) 
     
+  },
+  onRemove ()
+  {
+    this._polygon.remove()
   },
   initView (geojson)
   {
+    console.log(geojson)
     this._max = Math.max(geojson.properties.percentile_90_ew, geojson.properties.percentile_90_ns)
     this._dates = geojson.properties.dates.map(dt => moment( dt, 'YYYYMMDD').valueOf())
     this._keys = geojson.properties.keys
@@ -64,7 +70,7 @@ L.TioLayer = L.ImageOverlay.Rotated.extend({
   }
 });
 
-L.tioLayer = function (bounds, options) {
-  return new L.TioLayer(bounds, options);
-};
-module.exports = L.tioLayer
+ L.imageOverlay.tio = function (directory) {
+  return new L.ImageOverlay.Tio(directory);
+ };
+export default L.imageOverlay.tio

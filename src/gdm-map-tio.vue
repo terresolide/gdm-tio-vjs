@@ -60,6 +60,8 @@ Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 import TioGraph from './tio-graph.vue'
+import tio from './modules/leaflet.imageOverlay.tio.js'
+
 // import TioGraph from './tio-graph.vue'
 import TileSystem from './modules/tile-system.js'
 import moment from 'moment'
@@ -121,7 +123,7 @@ export default {
   },
   mounted: function () {
       this.initMap()
-      this.initTiles()
+     // this.initTiles()
       this.height = window.innerHeight
   },
   methods: {
@@ -149,7 +151,9 @@ export default {
       this.marker = L.marker([4, 50])
       
       var _this = this
+      var layer = tio(this.directory)
       this.marker.on('click', function (e) {
+        tio.addTo(_this.map)
         if (_this.ptValues.ew.length > 0 || _this.ptValues.ns.length > 0) {
           _this.showGraph = true
         }
@@ -158,6 +162,7 @@ export default {
         _this.marker.addTo(_this.map)
         _this.searchData(e)
       })
+     
 //       this.pixiOverlay = L.pixiOverlay(function(utils) {
 //         // your drawing code here
 //       }, new PIXI.Container());

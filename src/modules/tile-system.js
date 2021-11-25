@@ -64,6 +64,7 @@ export default {
     }
   },
   load (dir, parent) {
+    console.log('load = ' + dir)
     this.parent = parent
     this.dir = dir + '/'
     var _dir = this.dir
