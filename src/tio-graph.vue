@@ -182,7 +182,8 @@ export default {
       selected: false,
       delta: {x: 0, y:0},
       pos: {x:0, y:0},
-      maxComp: null
+      maxComp: null,
+      maxVelocity: null
     }
   },
   watch: {
