@@ -47,7 +47,7 @@
 
 var L = require("leaflet")
 // require('leaflet-markers-canvas')
-require('leaflet-imageoverlay-rotated')
+// require('leaflet-imageoverlay-rotated')
 // L.canvasOverlay = require('./L.image.canvas.js')
 // import * as PIXI from 'pixi.js'
 // require('leaflet-pixi-overlay')
@@ -60,8 +60,8 @@ Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 import TioGraph from './tio-graph.vue'
-import tio from './modules/leaflet.imageOverlay.tio.js'
-
+import Tio from './modules/leaflet.imageOverlay.rotated.tio.js'
+L.ImageOverlay.Rotated.Tio = Tio
 // import TioGraph from './tio-graph.vue'
 import TileSystem from './modules/tile-system.js'
 import moment from 'moment'
@@ -105,7 +105,8 @@ export default {
   			arrowIcon: null,
   			showGraph: false,
   			height: 500,
-  			max: null
+  			max: null,
+  			imgTio: null,
 		}
   },
 //   watch: {
@@ -132,35 +133,44 @@ export default {
 //     },
     draw (type, data) {
       this.$set(this.ptValues, type, data.values)
-      this.marker.setLatLng([data.values[0], data.values[1]])
+      // this.marker.setLatLng([data.values[0], data.values[1]])
       this.showGraph = true
     },
     initMap () {
       var container = this.$el.querySelector('#gdmMap');
       this.map = L.map( container, {scrollWheelZoom: true}).setView([51.505, -0.09], 2);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-        // preferCanvas: true
-      }).addTo(this.map);
+//       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//         maxZoom: 19,
+//         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+//         // preferCanvas: true
+//       },
+       L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+       attribution: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
+       
+     }).addTo(this.map);
 //       this.arrowIcon = L.icon({
 //         iconUrl: require('./assets/img/arrow.png'),
 //         iconSize: [30, 30],
 //         iconAnchor: [0, 30]
 //       })
-      this.marker = L.marker([4, 50])
+      // this.marker = L.marker([4, 50])
       
       var _this = this
-      var layer = tio(this.directory)
-      this.marker.on('click', function (e) {
-        tio.addTo(_this.map)
-        if (_this.ptValues.ew.length > 0 || _this.ptValues.ns.length > 0) {
-          _this.showGraph = true
-        }
+      this.imgTio = new L.ImageOverlay.Rotated.Tio(this.directory)
+      this.imgTio.on('TIO:DATA', function (resp) {
+        console.log(resp)
+        _this.draw(resp.dimension, {values: resp.values})
       })
+//       this.marker.on('click', function (e) {
+        
+//         if (_this.ptValues.ew.length > 0 || _this.ptValues.ns.length > 0) {
+//           _this.showGraph = true
+//         }
+//       })
       this.map.on('click',  function (e) {
-        _this.marker.addTo(_this.map)
-        _this.searchData(e)
+        _this.imgTio.addTo(_this.map)
+      //  _this.marker.addTo(_this.map)
+        // _this.searchData(e)
       })
      
 //       this.pixiOverlay = L.pixiOverlay(function(utils) {
@@ -234,6 +244,7 @@ export default {
       this.showGraph = false
       this.searching = true
       this.$forceUpdate()
+      
       TileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
       .then(resp => {
         _this.searching = false

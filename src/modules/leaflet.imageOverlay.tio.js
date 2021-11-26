@@ -18,7 +18,7 @@ import moment from 'moment'
 import TileSystem from './tile-system.js'
 
 
-L.ImageOverlay.Tio = L.ImageOverlay.Rotated.extend({
+export default {
   // includes: L.Mixin.Events,
   _marker: null,
   _polygon: null,
@@ -26,6 +26,9 @@ L.ImageOverlay.Tio = L.ImageOverlay.Rotated.extend({
   _dates: [],
   _keys: [],
   _directory: null,
+  _image: null,
+  _map: null,
+  _ready: false,
   options: {
     opacity: 0.7
   },
@@ -37,16 +40,31 @@ L.ImageOverlay.Tio = L.ImageOverlay.Rotated.extend({
     TileSystem.load(directory)
     .then( geojson => { _this.initView(geojson)} )
   },
-  onAdd (map)
+  addTo (map)
   {
-    L.ImageOverlay.Rotated.prototype.onAdd.call(this, map)
+
+    this._map = map
+    if (this._image && this._map.hasLayer(this._image)) {
+      return
+    }
+    if (!this._image) {
+      return
+    }
+    console.log('add')
     this._polygon.addTo(map)
-    this._map.fitBounds(this._polygon.getBounds()) 
+    this._map.fitBounds(this._polygon.getBounds())
+    this._image.addTo(map)
+    this._polygon.on('click', this.searchData)
     
   },
-  onRemove ()
+  searchData (e)
+  {
+    console.log('coucou')
+  },
+  remove (map)
   {
     this._polygon.remove()
+    this._image.remove()
   },
   initView (geojson)
   {
@@ -56,21 +74,16 @@ L.ImageOverlay.Tio = L.ImageOverlay.Rotated.extend({
     this._keys = geojson.properties.keys
     this._polygon = L.geoJSON(
         geojson,
-       {style() {return {weight: 1, fillOpacity: 0.05}}}
+       {style() {return {weight: 1, fillOpacity: 0.05, color:'blue'}}}
     )
     // add parent initialize
-    L.ImageOverlay.Rotated.prototype.initialize.call(
-        this,
+    this._image = L.imageOverlay.rotated(
         this._directory + '/' + geojson.properties.images[0].src,
         [geojson.properties.pointTL[1], geojson.properties.pointTL[0]], 
         [geojson.properties.pointTR[1], geojson.properties.pointTR[0]],
         [geojson.properties.pointBL[1], geojson.properties.pointBL[0]],
         {opacity: 0.5}
     )
+    this._ready = true
   }
-});
-
- L.imageOverlay.tio = function (directory) {
-  return new L.ImageOverlay.Tio(directory);
- };
-export default L.imageOverlay.tio
+}
