@@ -20,11 +20,12 @@ import TileSystem from './tile-system.js'
 
 export default L.ImageOverlay.Rotated.extend({
   // includes: L.Mixin.Events,
-  _marker: null,
-  _polygon: null,
   max: null,
   dates: [],
   keys: [],
+  searching: false,
+  _marker: null,
+  _polygon: null,
   _directory: null,
   _image: null,
   _map: null,
@@ -60,7 +61,9 @@ export default L.ImageOverlay.Rotated.extend({
   onRemove (map) {
     this._polygon.off('click')
     this._polygon.remove()
+    this._marker.off('click')
     this._marker.remove()
+    this.fire('TIO:RESET')
     L.ImageOverlay.Rotated.prototype.onRemove.call(this, map);
   },
   isLoaded () {
@@ -87,29 +90,26 @@ export default L.ImageOverlay.Rotated.extend({
   {
     var _this = this
     this._marker.setLatLng(e.latlng)
-    _this.fire('TIO:RESET')
+    this.fire('TIO:RESET')
+    this.searching = true
     TileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
     .then (resp => {
-      resp.dimension = 'ew'
+      _this.searching = false
       if (resp && resp.values && resp.values[3] !== null) {
-        console.log(resp)
         _this.fire('TIO:DATA', resp)
-        
       } 
     })
     TileSystem.searchData('ns', e.latlng.lat, e.latlng.lng)
     .then(resp => {
       _this.searching = false
-      resp.dimension = 'ns'
       if (resp && resp.values && resp.values[3] !== null) {
         _this.fire('TIO:DATA', resp)
-      } 
+      }
     })
 
   },
   initView (geojson)
   {
-    console.log(geojson)
     this.max = Math.max(geojson.properties.percentile_90_ew, geojson.properties.percentile_90_ns)
     this.dates = geojson.properties.dates.map(dt => moment( dt, 'YYYYMMDD').valueOf())
     this.keys = geojson.properties.keys

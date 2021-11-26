@@ -22,8 +22,8 @@
         <div class="fa fa-close" @click="$emit('close')"></div>
         <h4  @mousedown="movestart">{{$t('plot_point').toUpperCase()}}</h4>
       </div>
-	    <div class="graph-infos" style="overflow:auto;" :style="{height: (windowHeight - 30) + 'px'}">
-	      <div style="display:flex;justify-content: space-between;">
+	    <div class="graph-infos"  style="overflow:auto;" :style="{height: (windowHeight - 30) + 'px'}">
+	      <div style="display:flex;justify-content: space-between;cursor:move;" @mousedown="movestart" >
           <div class="tio-element" v-if="position.lat" >
           <label>POSITION</label>
           <div><label>Lat:</label> {{Math.round(position.lat * 1000) / 1000}}°</div>

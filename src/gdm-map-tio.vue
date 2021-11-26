@@ -16,7 +16,7 @@
 <template>
   <span class="gdm-map-tio">
   <div style="position:relative;">
-	  <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
+	  <div v-if="imgTio && imgTio.searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
 	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
    <tio-graph v-if="imgTio" v-show="showGraph" :dates="imgTio.dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
@@ -82,6 +82,8 @@ export default {
        attribution: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
      }).addTo(this.map);
       var _this = this
+      var control = L.control.layers([], [])
+      control.addTo(this.map)
       this.imgTio = new L.ImageOverlay.Rotated.Tio(this.directory)
       this.imgTio.on('TIO:RESET', function (resp) {
         _this.ptValues = {ew: [], ns: []}
@@ -91,7 +93,7 @@ export default {
         console.log(resp)
         _this.draw(resp.dimension, {values: resp.values})
       })
-
+      control.addOverlay(this.imgTio, 'TIO')
       this.map.on('click',  function (e) {
         _this.imgTio.addTo(_this.map)
       })
