@@ -20,8 +20,8 @@
 	  <div v-if="searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
 	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
-   <tio-graph v-show="showGraph" :dates="dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
-   :keys="keys" :maximum="max" :lang="lang" @close="showGraph=false"></tio-graph>
+   <tio-graph v-if="imgTio" v-show="showGraph" :dates="imgTio.dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
+   :keys="imgTio.keys" :maximum="imgTio.max" :lang="lang" @close="showGraph=false"></tio-graph>
  
   
 <!--  <div style="width:50%;margin-left:50%;height:600px;position:relative;" >
