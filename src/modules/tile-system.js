@@ -1,3 +1,6 @@
+/**
+ * Manage TIO tiles 
+ */
 import Vue from 'vue'
 import VueResource from 'vue-resource';
 Vue.use(VueResource)
@@ -27,9 +30,14 @@ export default {
   parent: null,
   active: null,
   images: [],
+  /**
+   * Initialize coordinates system 
+   * with geojson 
+   * @see 
+   */
   initialize (data) {
     this.computeCoordSystem(data)
-    this.loadAll(0, 0)
+    // this.loadAll(0, 0)
   },
   initializeTile (tile, key, data) {
     if (!this.tiles[tile]) {

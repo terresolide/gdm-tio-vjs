@@ -4,13 +4,15 @@
      "by_date": "By date",
      "height": "Hauteur",
      "plot_point": "Données du point sélectionné",
-     "QUALITY": "QUALITÉ"
+     "QUALITY": "QUALITÉ",
+     "mean_velocity": "Vitesse moyenne"
   },
   "en": {
      "by_date": "Par date",
      "height": "Height",
      "plot_point": "Data of the selected point",
-     "QUALITY": "QUALITY"
+     "QUALITY": "QUALITY",
+     "mean_velocity": "Mean velocity"
   }
 }
 </i18n>
