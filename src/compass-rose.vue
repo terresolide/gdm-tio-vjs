@@ -17,11 +17,11 @@
  <svg class="compass-rose" xmlns="http://www.w3.org/2000/svg" :style="{width: 2 * width + 'px', height: height + 'px'}" :width="size.width" :height="size.height" :viewBox="'0 0 ' + size.width + ' ' + size.height">
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-    refX="2.5" refY="3.5" orient="auto">
+    refX="10" refY="3.5" orient="auto">
       <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" :fill="color"/>
     </marker>
      <marker id="arrowhead2" markerWidth="10" markerHeight="7" 
-    refX="2.5" refY="3.5" orient="auto">
+    refX="10" refY="3.5" orient="auto">
       <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" :fill="color2"/>
     </marker>
     <marker id="hyphen" viewBox="0 0 0 10" refX="0" refY="5"
@@ -56,7 +56,7 @@
    {{$t('mean_velocity')}} 
    </text>
     <text :fill="color" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.25 - 10" text-anchor="middle">
-    {{maxVelocity}} {{$t('meter_day')}}
+    {{velocityRef}} {{$t('meter_day')}}
    </text>
   <line :x1="size.width * 0.65" :x2="size.width * 0.65 + radius" :y1="size.height * 0.25" :y2="size.height * 0.25" :stroke="color" 
   stroke-width="2" marker-end="url(#arrowhead)"/>
@@ -69,7 +69,7 @@
    {{dateStr}} 
    </text>
     <text :fill="color2" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.55 - 10" text-anchor="middle">
-    {{maxComp}} m
+    {{magnRef}} m
    </text>
  
   
@@ -147,21 +147,38 @@ export default {
   },
   computed: {
     point () {
-      var x = this.ew * this.radius / this.maxVelocity + this.center.x
-      var y = this.ns * this.radius / this.maxVelocity + this.center.y
+      var x = this.ew * this.radius / this.velocityRef + this.center.x
+      var y = this.ns * this.radius / this.velocityRef + this.center.y
       return {x: x, y: y}
     },
     ptDate () {
+      console.log(this.maxComp)
       if (this.dateEw && this.dateNs) {
-        var x = this.dateEw * this.radius / this.maxComp + this.center.x
-        var y = this.dateNs * this.radius / this.maxComp + this.center.y
+        var x = this.dateEw * this.radius / this.magnRef + this.center.x
+        var y = this.dateNs * this.radius / this.magnRef + this.center.y
         return {x: x, y: y}
       } else {
         return null
       }
+    },
+    magnRef () {
+      var exp = Math.floor(Math.log10(this.maxComp))
+      var n = Math.round(this.maxComp / Math.pow(10, exp))
+      return n * Math.pow(10, exp)
+    },
+    velocityRef () {
+      var exp = Math.floor(Math.log10(this.maxVelocity))
+      var n = Math.round(this.maxVelocity / Math.pow(10, exp))
+      var res = n * Math.pow(10, exp)
+      if (exp < 0) {
+        return res.toFixed(- exp)
+      } else {
+        return res
+      }
     }
   },
   created () {
+    console.log(this.maxComp)
     this.center.x = this.size.width / 4
     this.center.y = this.size.height / 2
     this.$i18n.locale = this.lang

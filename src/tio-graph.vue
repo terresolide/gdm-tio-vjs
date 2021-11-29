@@ -43,7 +43,7 @@
           <div><label>MAGN:</label> {{quality.magn}}</div>
           </div>
           <div >
-            <compass-rose :lang="lang" :width="100" :height="100" :max-velocity="0.005" :max-comp="6" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
+            <compass-rose :lang="lang" :width="100" :height="100" :max-velocity="point.magn" :max-comp="maxComp" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
             :color2="compassColors.date" :date-ns="pointDate.ns" :date-ew="pointDate.ew" :date-str="pointDate.date"></compass-rose>
           </div>
          <!--    <div class="tio-element" style="">
@@ -344,11 +344,6 @@ export default {
         this.graphs[type] = null
         this.addSpinner(type)
       }
-//       var tab = this[type]
-//       if (!tab || !tab[row] || !tab[row][col]) {
-//         return false
-//       }
-//       tab = tab[row][col]
       this.position.lat = tab[0]
       this.position.lng = tab[1]
       this.position.height = tab[2]
@@ -377,17 +372,20 @@ export default {
       var begin = this.keys.length
       tab = tab.slice(this.keys.length)
       var data = []
-    
       var min = null
       var max = null
-      var delta = []
+      // var delta = []
       var plotlines = []
       var regData = []
       var dates = []
      
       // fill data
       var _this = this
-      this.maxComp = 0
+     // this.maxComp = 0
+      if (type !== 'magn') {
+        // initialize the max in vector composant
+        this.maxComp = null
+      }
       this.dates.forEach (function (date, n) {
         if (comp2) {
           if (tab[n] !== null) {
@@ -423,10 +421,10 @@ export default {
            })
         }
       })
-      var reg = regression(regData, dates)
       if (data.length === 0) {
         return
       }
+      var reg = regression(regData, dates)
       // var _this = this
      // var chartIndex = Object.keys(this.graphs).findIndex(key => key === type)
       quality = Math.round(quality * 100) / 100
