@@ -29,7 +29,7 @@
 <script>
 
 var L = require("leaflet")
-import TioGraph from './tio-graph.vue'
+const TioGraph = () => import('./tio-graph.vue')
 import Tio from './modules/leaflet.imageOverlay.rotated.tio.js'
 L.ImageOverlay.Rotated.Tio = Tio
 
