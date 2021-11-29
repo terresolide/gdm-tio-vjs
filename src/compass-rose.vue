@@ -152,7 +152,6 @@ export default {
       return {x: x, y: y}
     },
     ptDate () {
-      console.log(this.maxComp)
       if (this.dateEw && this.dateNs) {
         var x = this.dateEw * this.radius / this.magnRef + this.center.x
         var y = this.dateNs * this.radius / this.magnRef + this.center.y
@@ -178,7 +177,6 @@ export default {
     }
   },
   created () {
-    console.log(this.maxComp)
     this.center.x = this.size.width / 4
     this.center.y = this.size.height / 2
     this.$i18n.locale = this.lang

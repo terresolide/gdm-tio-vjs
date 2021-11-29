@@ -90,7 +90,6 @@ export default {
         _this.showGraph = false
       })
       this.imgTio.on('TIO:DATA', function (resp) {
-        console.log(resp)
         _this.draw(resp.dimension, {values: resp.values})
       })
       control.addOverlay(this.imgTio, 'TIO')

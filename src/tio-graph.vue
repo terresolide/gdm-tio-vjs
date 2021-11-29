@@ -82,7 +82,7 @@ import HighchartsExporting from 'highcharts/modules/exporting'
 // import Highstock from 'highcharts/highstock'
 // import  Indicators from 'highcharts/indicators/indicators'
 //  import  Regression from 'highcharts/indicators/regressions'
- import jStat from 'jStat'
+  import jStat from 'jStat'
  import moment from 'moment'
  function regression(arrWeight, arrHeight) {
    let r, sy, sx, b, a, meanX, meanY;
