@@ -91,17 +91,17 @@ export default L.ImageOverlay.Rotated.extend({
     var _this = this
     this._marker.setLatLng(e.latlng)
     this.fire('TIO:RESET')
-    this.searching = true
+    this.fire('TIO:SEARCHING',{searching:true})
     TileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
     .then (resp => {
-      _this.searching = false
+      _this.fire('TIO:SEARCHING', {searching:false})
       if (resp && resp.values && resp.values[3] !== null) {
         _this.fire('TIO:DATA', resp)
       } 
     })
     TileSystem.searchData('ns', e.latlng.lat, e.latlng.lng)
     .then(resp => {
-      _this.searching = false
+      _this.fire('TIO:SEARCHING', {searching:false})
       if (resp && resp.values && resp.values[3] !== null) {
         _this.fire('TIO:DATA', resp)
       }

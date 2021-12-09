@@ -16,7 +16,7 @@
 <template>
   <span class="gdm-map-tio">
   <div style="position:relative;">
-	  <div v-if="imgTio && imgTio.searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
+	  <div v-if="imgTio && searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
 	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
    <tio-graph v-if="imgTio" v-show="showGraph" :dates="imgTio.dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
@@ -91,6 +91,9 @@ export default {
       })
       this.imgTio.on('TIO:DATA', function (resp) {
         _this.draw(resp.dimension, {values: resp.values})
+      })
+      this.imgTio.on('TIO:SEARCHING', function (data) {
+        _this.searching = data.searching
       })
       control.addOverlay(this.imgTio, 'TIO')
       this.map.on('click',  function (e) {
