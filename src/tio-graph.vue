@@ -537,7 +537,7 @@ export default {
     position:fixed;
     top: calc(50% - 300px);
     left:calc(50% - 350px);
-    border: 1px solid #ccc;
+    border: 2px solid #888;
     border-radius: 0 0 5px 5px;
     background: white;
     box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
