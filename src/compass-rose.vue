@@ -1,20 +1,24 @@
 <i18n>
 {
   "en": {
+     "displacement": "Displacement",
      "symbol_west": "W",
      "mean_velocity": "Mean Velocity",
-     "meter_day": "m/day"
+     "meter_day": "m/day",
+     "units": "Units"
    },
    "fr": {
+    "displacement": "Déplacement",
      "symbol_west": "O",
      "mean_velocity": "Vitesse moyenne",
-     "meter_day": "m/jour"
+     "meter_day": "m/jour",
+     "units": "Unités"
    }
 }
 </i18n>
 <template>
 <div> 
- <svg class="compass-rose" xmlns="http://www.w3.org/2000/svg" :style="{width: 2 * width + 'px', height: height + 'px'}" :width="size.width" :height="size.height" :viewBox="'0 0 ' + size.width + ' ' + size.height">
+ <svg class="compass-rose" xmlns="http://www.w3.org/2000/svg" :style="{width: 2 * width + 'px', height: (height + 20) + 'px'}" :width="size.width" :height="size.height" :viewBox="'0 0 ' + size.width + ' ' + size.height">
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" 
     refX="10" refY="3.5" orient="auto">
@@ -43,15 +47,21 @@
    <text class="card" :x="center.x - radius - 3" :y="center.y + 6" text-anchor="end" 
    style="">{{$t('symbol_west')}}</text>
    <text class="card" :x="center.x + radius + 3" :y="center.y + 6" text-anchor="start">E</text>
+   <text  :x="center.x" :y="center.y + radius + 50" text-anchor="middle">{{dateStr}}</text>
 </g>
-<g>
+<g >
   <line :x1="center.x" :y1="center.y" :x2="point.x" :y2="point.y" :stroke="color" 
   stroke-width="2" marker-end="url(#arrowhead)" />
     <line v-if="ptDate" :x1="center.x" :y1="center.y" :x2="ptDate.x" :y2="ptDate.y" :stroke="color2" 
   stroke-width="2" marker-end="url(#arrowhead2)" />
 </g>
 <g>
-   <text :fill="color" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.25 - 30"
+ <text  class="title" :x="size.width * 0.5" :y="size.height * 0.25 - 30" text-anchor="start">
+   {{$t('units')}}
+   </text>
+</g>
+<g transform="translate(0 50)">
+   <text :fill="color" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.25 - 40"
    :color="color" text-anchor="middle">
    {{$t('mean_velocity')}} 
    </text>
@@ -63,10 +73,10 @@
   
   
  </g>
- <g>
-   <text :fill="color2" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.55 - 30"
+ <g transform="translate(0 70)">
+   <text :fill="color2" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.55 - 40"
    :color="color" text-anchor="middle">
-   {{dateStr}} 
+    {{$t('displacement')}} 
    </text>
     <text :fill="color2" :x="size.width * 0.65 + radius / 2" :y="size.height * 0.55 - 10" text-anchor="middle">
     {{magnRef}} m
@@ -185,12 +195,17 @@ export default {
 </script>
 <style>
 svg.compass-rose text {
- font-size: 24px;
+ font-size: 28px;
 }
 svg.compass-rose text.card {
  font-family: century-gothic, sans-serif;
  font-weight:700;
  font-size:18px;
+}
+svg.compass-rose text.title {
+  font-weight:700;
+  font-size: 28px;
+  text-transform: uppercase;
 }
 
 </style>
