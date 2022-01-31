@@ -71,13 +71,17 @@ export default {
       this.parent.addMarkers(points)
     }
   },
-  load (dir, parent) {
-    console.log('load = ' + dir)
+  load (root, parent) {
+    console.log('load = ' + root)
     this.parent = parent
+    this._root = root
+    var part = root.split('/')
+    part.pop()
+    var dir = part.join('/')
     this.dir = dir + '/'
     var _dir = this.dir
     return new Promise((successCallback, failureCallback) => {
-      Vue.http.get(_dir + 'root.json')
+      Vue.http.get(root)
       .then(resp => {
          this.initialize(resp.body)
          successCallback(resp.body)},

@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "formater-commons-components-vjs": "github:terresolide/formater-commons-components-vjs",
+    "formater-metadata-vjs": "github:terresolide/formater-metadata-vjs",
     "highcharts": "^9.0.1",
     "jStat": "^1.8.6",
     "leaflet": "^1.7.1",

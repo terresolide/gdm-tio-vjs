@@ -21,30 +21,41 @@ import TileSystem from './tile-system.js'
 export default L.ImageOverlay.Rotated.extend({
   // includes: L.Mixin.Events,
   max: null,
+  type: 'tio',
   dates: [],
   keys: [],
+  images: [],
   searching: false,
+  legend: null,
   _marker: null,
   _polygon: null,
-  _directory: null,
+  _root: null,
   _image: null,
   _map: null,
   _ready: false,
+  _index: -1,
   options: {
     opacity: 0.7
   },
-  initialize (directory)
+  getIndex ()
   {
-    console.log(directory)
-    this._directory = directory
+    if (this._index >= 0) {
+      return this._index
+    } else {
+      return false
+    }
+  },
+  initialize (root)
+  {
+    this._root = root
     var _this = this
-    TileSystem.load(directory)
+    TileSystem.load(this._root)
     .then( geojson => { _this.initView(geojson)} )
   },
   onAdd (map) {
     
     L.ImageOverlay.Rotated.prototype.onAdd.call(this, map);
-    TileSystem.loadAll(0, 0)
+    // TileSystem.loadAll(0, 0)
     this._marker = L.marker([0,0])
    
     this._marker.addTo(map)
@@ -113,6 +124,8 @@ export default L.ImageOverlay.Rotated.extend({
     this.max = Math.max(geojson.properties.percentile_90_ew, geojson.properties.percentile_90_ns)
     this.dates = geojson.properties.dates.map(dt => moment( dt, 'YYYYMMDD').valueOf())
     this.keys = geojson.properties.keys
+    this.images = geojson.properties.images
+    this.legend = this.images[0].legend
     this._polygon = L.geoJSON(
         geojson,
        {style() {return {weight: 1, fillOpacity: 0.05, color:'blue'}}}
@@ -120,12 +133,13 @@ export default L.ImageOverlay.Rotated.extend({
     // add parent initialize
     L.ImageOverlay.Rotated.prototype.initialize.call(
         this,
-        this._directory + '/' + geojson.properties.images[0].src,
+        this.images[0].png,
         [geojson.properties.pointTL[1], geojson.properties.pointTL[0]], 
         [geojson.properties.pointTR[1], geojson.properties.pointTR[0]],
         [geojson.properties.pointBL[1], geojson.properties.pointBL[0]],
         {opacity: 0.5}
     )
     this._ready = true
+    this.fire('TIO:READY')
   }
 })
