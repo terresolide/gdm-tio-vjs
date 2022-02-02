@@ -17,15 +17,15 @@
   <span class="gdm-map-tio">
   <div style="position:relative;">
 	  <div v-if="imgTio && searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
-	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: (height - 100) + 'px'}"></div>
+	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
    <tio-graph v-if="imgTio" v-show="showGraph" :dates="imgTio.dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
    :keys="imgTio.keys" :maximum="imgTio.max" :lang="lang" @close="showGraph=false"></tio-graph>
-   <div v-if="imgTio && images.length > 0">
+<!--   <div v-if="imgTio && images.length > 0">
      <div v-for="(image, index) in images">
      <i class="fa" style="vertical-align:top;":class="imgTio.checked && imgTio.index === index ?'fa-eye':'fa-eye-slash'" @click="toggleImageTio(index)"></i>   {{image.title}}
      </div>
-   </div>
+   </div>  -->
   </span>
 </template>
 
