@@ -165,7 +165,7 @@ export default {
       point: {ns: 0, ew: 0},
       pointDate: {ns: null, ew: null, magn: null, date: null},
       hasValues: false,
-      windowHeight: 675,
+      windowHeight: 700,
       windowResizeListener: null,
       compassColors: {
         mean: '#ff4500',
@@ -228,7 +228,7 @@ export default {
   },
   methods: {
     initSize () {
-      this.windowHeight = Math.min(window.innerHeight * 0.95, 675)
+      this.windowHeight = Math.min(window.innerHeight * 0.95, 700)
       this.initPosition()
     },
     initPosition () {
