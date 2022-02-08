@@ -67,7 +67,7 @@ export default L.ImageOverlay.Rotated.extend({
     this._polygon.on('click', function (e) {
       _this.searchData(e)
     })
-    this._map.fitBounds(this._polygon.getBounds())
+    // this._map.fitBounds(this._polygon.getBounds())
   },
   onRemove (map) {
     this._polygon.off('click')
