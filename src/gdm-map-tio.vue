@@ -134,7 +134,8 @@ export default {
         _this.searching = data.searching
       })
       this.imgTio.on('add', function (e) {
-        console.log(e)
+        var bounds = this._polygon.getBounds()
+        _this.map.fitBounds(bounds)
         _this.controlLegend.addLegend(0, 0, this.legend)
         _this.controlOpacity.setVisible(true)
       })

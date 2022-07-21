@@ -19,6 +19,10 @@ export default {
     lines: 100,
     columns: 100
   },
+  url: {
+    ew: null,
+    ns: null
+  },
   tabs: ['ns', 'ew'],
   tiles: {},
   determinant: null,
@@ -36,8 +40,20 @@ export default {
    * @see 
    */
   initialize (data) {
+    this.extractTileUrl(data)
     this.computeCoordSystem(data)
     // this.loadAll(0, 0)
+  },
+  extractTileUrl (data) {
+    var regex = /(^https?:\/\/.*_)[0-9]{3}_[0-9]{3}\.json$/
+    var test = regex.exec(data.properties.tiles.ew[0])
+    if (test) {
+      this.url.ew = test[1]
+    }
+    test = regex.exec(data.properties.tiles.ns[0])
+    if (test) {
+      this.url.ns = test[1]
+    }
   },
   initializeTile (tile, key, data) {
     if (!this.tiles[tile]) {
@@ -59,7 +75,7 @@ export default {
       line.forEach(function (col, index) {
         if (col[3] !== null) {
          // if ((index0 + index) % 3 === 0) {
-            points.push({pt:[col[0], col[1]], value:col[3]})
+            points.push({pt:[col[0], col[1]], value: col[3]})
         //  } 
 //          else {
 //            points13.push({pt:[col[0], col[1]], value:col[66]})
@@ -145,7 +161,10 @@ export default {
         }
         return true
       }
-      Vue.http.get(_this.dir + type + '_displ_' +  tile + '.json')
+      if (!_this.url[type]) {
+        return
+      }
+      Vue.http.get(_this.url[type] +  tile + '.json')
         .then(resp => {
            _this.initializeTile(tile, type, resp.body)
            // _this.tiles[tile].loaded = true
@@ -177,7 +196,13 @@ export default {
     var _this = this
       
     return  this.loadTile(type, pos.tile).then(
-      resp => {return {dimension: type, values: this.tiles[pos.tile][type][pos.line][pos.col]}},
+      resp => {
+        // parseFloat before
+        _this.tiles[pos.tile][type][pos.line][pos.col].forEach(function (value, index) {
+          _this.tiles[pos.tile][type][pos.line][pos.col][index] = parseFloat(value)
+        })
+        return {dimension: type, values: this.tiles[pos.tile][type][pos.line][pos.col]}
+      },
       resp => {return false}
     )
   },

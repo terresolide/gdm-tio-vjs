@@ -193,6 +193,7 @@ export default {
 //     }
     nsValues (newvalues) {
       this.pointDateInit()
+      
       this.draw('ns', newvalues)
     },
     ewValues (newvalues) {
@@ -462,7 +463,7 @@ export default {
                    values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + pt.open + ' &pm; ' + _this.quality[key] + '</div>')
                  }
                }
-               if (key !== type) {
+               if (key !== type && chart) {
                  chart.tooltip.hide();
                }
             }
