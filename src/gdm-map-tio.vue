@@ -157,9 +157,9 @@ export default {
 }
 
 </script>
-<style src="formater-metadata-vjs/src/assets/css/fontello.css"></style>
+<!--  <style src="formater-metadata-vjs/src/assets/css/fontello.css"></style> -->
 
-<style src="formater-commons-components-vjs/src/assets/css/formater-icon.css"></style>
+<style src="formater-commons-components-vjs/src/assets/css/formater-icon.css"></style> 
 
 <style>
 div[id="gdmMap"]{

@@ -1,6 +1,6 @@
 {
   "name": "gdm-tio-vjs",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Display temporal serie",
   "production": {
     "url": "https://cdn.jsdelivr.net/gh/terresolide"
@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "formater-commons-components-vjs": "github:terresolide/formater-commons-components-vjs",
-    "formater-metadata-vjs": "github:terresolide/formater-metadata-vjs",
     "highcharts": "^9.0.1",
     "jStat": "^1.8.6",
     "leaflet": "^1.7.1",
