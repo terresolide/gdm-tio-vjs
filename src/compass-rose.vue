@@ -157,13 +157,13 @@ export default {
   },
   computed: {
     point () {
-      var x = this.ew * this.radius / this.velocityRef + this.center.x
+      var x = (-1) * this.ew * this.radius / this.velocityRef + this.center.x
       var y = this.ns * this.radius / this.velocityRef + this.center.y
       return {x: x, y: y}
     },
     ptDate () {
       if (this.dateEw && this.dateNs) {
-        var x = this.dateEw * this.radius / this.magnRef + this.center.x
+        var x = (-1) * this.dateEw * this.radius / this.magnRef + this.center.x
         var y = this.dateNs * this.radius / this.magnRef + this.center.y
         return {x: x, y: y}
       } else {
