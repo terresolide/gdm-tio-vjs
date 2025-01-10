@@ -36,7 +36,8 @@
 var L = require("leaflet")
 const TioGraph = () => import('./tio-graph.vue')
 import Tio from './modules/leaflet.imageOverlay.rotated.tio.js'
-require('./modules/leaflet.control.legend.js')
+// require('./modules/leaflet.control.legend.js')
+L.Control.Legend = require('formater-commons-components-vjs/src/leaflet/leaflet.control.legend.js')
 require('./modules/leaflet.control.opacity.js')
 require('./modules/leaflet.control.gdmlayer.js')
 L.ImageOverlay.Rotated.Tio = Tio
@@ -192,7 +193,7 @@ div[id="gdmMap"]{
   padding:5px;
  }
  div[id="gdmMap"] .lfh-control-opacity a.icon-progress{
-   background-image: url("./assets/images/progress2.png");
+  /* background-image: url("/assets/images/progress2.png");*/
    background-size: cover;
    pointer-events:auto;
    cursor:pointer;
