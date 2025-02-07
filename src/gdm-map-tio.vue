@@ -35,12 +35,12 @@
 
 var L = require("leaflet")
 const TioGraph = () => import('./tio-graph.vue')
-import Tio from './modules/leaflet.imageOverlay.rotated.tio.js'
+import Zarr from './modules/leaflet.imageOverlay.rotated.zarr.js'
 // require('./modules/leaflet.control.legend.js')
-L.Control.Legend = require('formater-commons-components-vjs/src/leaflet/leaflet.control.legend.js')
+ L.Control.Legend = require('formater-commons-components-vjs/src/leaflet/leaflet.control.legend.js')
 require('./modules/leaflet.control.opacity.js')
 require('./modules/leaflet.control.gdmlayer.js')
-L.ImageOverlay.Rotated.Tio = Tio
+L.ImageOverlay.Rotated.Zarr = Zarr
 
 export default {
   name: 'GdmMapTio',
@@ -54,7 +54,8 @@ export default {
       },
       root: {
           type: String,
-          default: 'https://api.poleterresolide.fr/exemples/546/root2.json'
+          default: 'https://catalog.formater/assets/results_urls.json'
+          // default: 'https://api.poleterresolide.fr/exemples/546/root2.json'
       }
   },
   data () {
@@ -79,7 +80,7 @@ export default {
   },
   mounted: function () {
       this.initMap()
-     // this.initTiles()
+      this.initTiles()
       this.height = window.innerHeight
   },
   methods: {
@@ -116,7 +117,7 @@ export default {
       this.controlOpacity = new L.Control.Opacity(this.$i18n.locale)
       this.controlOpacity.addTo(this.map)
       // control.addTo(this.map)
-      this.imgTio = new L.ImageOverlay.Rotated.Tio(this.root)
+      this.imgTio = new L.ImageOverlay.Rotated.Zarr(this.root)
       this.imgTio.type = 'TIO'
       this.imgTio.first = 'Time series'
         this.controlOpacity.setLayers([this.imgTio])

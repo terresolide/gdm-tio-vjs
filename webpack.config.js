@@ -47,7 +47,11 @@ module.exports = {
         loader: 'babel-loader',
         exclude: /node_modules/
       },
-     
+      {
+        test: /\.ts$/,
+        loader: 'ts-loader',
+        options: { appendTsSuffixTo: [/\.vue$/] }
+      },
        {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
         use: [{
@@ -73,7 +77,7 @@ module.exports = {
 	  new VueLoaderPlugin() 
   ],
   resolve: {
-    extensions: ['.js', '.vue', '.json', '.jsx'],
+    extensions: [".ts", ".tsx", '.js', '.vue', '.json', '.jsx'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src')
@@ -81,19 +85,19 @@ module.exports = {
   },
   devServer: {
     historyApiFallback: true,
-    noInfo: true
+    liveReload: true
   },
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: 'eval-source-map'
 }
 if (process.env.NODE_ENV === 'development') {
   module.exports.mode ="development"
 	module.exports.output.filename='build.js'
 }
 if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = '#source-map';
+  module.exports.devtool = 'source-map';
   module.exports.optimization= {
     minimize: true
   }
