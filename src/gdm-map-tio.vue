@@ -54,8 +54,8 @@ export default {
       },
       root: {
           type: String,
-          default: 'https://catalog.formater/assets/results_urls.json'
-          // default: 'https://api.poleterresolide.fr/exemples/546/root2.json'
+          default: 'https://s3.unistra.fr/gdmsarcor/job_2024-10-30_12-22-03_519358_vluyli/root.json'
+          // default: 'https://api.poleterresolide.fr/tio/546/tio/root3.json'
       }
   },
   data () {
@@ -80,7 +80,7 @@ export default {
   },
   mounted: function () {
       this.initMap()
-      this.initTiles()
+      // this.initTiles()
       this.height = window.innerHeight
   },
   methods: {
