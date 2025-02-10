@@ -329,7 +329,171 @@ export default {
        this.$el.querySelector('#graph_' + type).appendChild(spinner)
        
     },
+    drawZarr (type, tab) {
+          // check if it's last data composante
+      var comp2 = null
+      // case type = ns or ew and the others is ok
+      if (type === 'ns' && this.ewValues.length > 1) {
+        comp2 = this.ewValues
+      }
+      if (type === 'ew' && this.nsValues.length > 1) {
+        comp2 = this.nsValues
+      }
+      // remove graph if exists
+      if (this.graphs[type]) {
+        this.graphs[type].destroy()
+        this.graphs[type] = null
+        this.addSpinner(type)
+      }
+      var _this = this
+      var data = []
+      var min = null
+      var max = null
+      // var delta = []
+      var plotlines = []
+      var regData = []
+      var dates = []
+      this.dates.forEach (function (date, n) {
+        if (comp2) {
+          if (tab[n] !== null) {
+            _this.magnValues[n] = Math.round(Math.sqrt(tab[n] * tab[n] + comp2[n] * comp2[n]) * 1000) / 1000
+            if (_this.maxComp < _this.magnValues[n]) {
+              _this.maxComp = _this.magnValues[n]
+            }
+          } else {
+            _this.magnValues[n] = null
+          }
+        }
+        if (!isNaN(tab[n]) && tab[n] !== null && tab[n] != Infinity) {
+            data.push([
+              date, 
+              tab[n]
+           ])
+           dates.push(date)
+           regData.push(tab[n])
+           if (min === null || min > tab[n]) {
+             min = tab[n]
+           } 
+           if (max === null || max < tab[n]) {
+             max = tab[n]
+           } 
+           plotlines.push({
+             color: '#ccd6eb',
+             value: date,
+             width: 1,
+             id: n
+           })
+        }
+      })
+      console.log(data)
+      if (data.length === 0) {
+        return
+      }
+      var reg = regression(regData, dates)
+    
+      var color = this.colors[type]
+      var lightColor = this.$shadeColor(color, 0.4)
+      this.graphs[type] = Highcharts.chart('graph_' + type, {
+        chart: {
+          zoomType: 'x'
+        },
+        title: 'Test',
+        width: '680px',
+        height: _this.height + 'px',
+        credits: {
+          enabled:false
+        },
+        legend: {
+          enabled: false
+        },
+        exporting: {
+          enabled: false
+        },
+        tooltip: {
+          enabled: true,
+          formatter (e) {
+            if (!this.point) {
+              return false
+            }
+            var values = []
+            for (var key in _this.colors) {
+              var chart = _this.graphs[key];
+              if (chart && typeof chart !== 'undefined') {
+                 var pt = chart.series[0].points.find(el => el.x === this.point.x )
+                 if (pt !== undefined) {
+                   _this.pointDate[key] = pt.open
+                   values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + pt.open + '</div>')
+                 }
+               }
+               if (key !== type && chart) {
+                 chart.tooltip.hide();
+               }
+            }
+            _this.pointDate.date = moment.unix(this.point.x/ 1000).format('ll')
+            var s = '<b>' + moment.unix(this.point.x/ 1000).format('ll') + '</b><br />'
+            return s + values.join('<br />')
+          },
+          shared: false
+        },
+        plotOptions: {},
+        xAxis: {
+           type: 'datetime',
+           lineColor:'#666',
+           events: {
+//              setExtremes (e) {
+//                _this.syncExtremes(e, type)
+//              },
+             afterSetExtremes (e) {
+               var xMin = e.min
+               var xMax = e.max
+               for(var key in _this.graphs) {
+                 if (key !== type && _this.graphs[key]) {
+                   _this.graphs[key].xAxis[0].setExtremes(xMin, xMax, true, false)
+                 }
+               }
+             }
+           },
+           gridLineWidth: 0,
+           plotLines: plotlines,
+         },
+         yAxis: {
+             title: {
+                 text: type.toUpperCase()
+             },
+             min: min,
+             max: max,
+             plotLines: [{
+               value: 0,
+               color: 'lightgrey',
+               width: 2
+             }]
+         },
+         series: [{
+             name: type,
+             color: color,
+             type: 'line',
+             id: type,
+             zIndex:10,
+             data:data,
+             lineWidth: 1
+         }, {
+           name: 'regression',
+           color: color,
+           data: reg.line,
+           lineWidth: 1,
+          // zIndex: -1,
+           enableMouseTracking: false
+         }   
+      ]})
+      if (comp2) {
+        this.draw('magn', this.magnValues)
+      }
+    },
     draw (type, tab) {
+      if (this.keys.length === 0) {
+         this.drawZarr(type, tab)
+         return
+      }
       // check if it's last data composante
       var comp2 = null
       // case type = ns or ew and the others is ok

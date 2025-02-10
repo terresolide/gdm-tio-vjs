@@ -12,8 +12,8 @@ Vue.use(VueResource);
 import VueI18n from 'vue-i18n';
 Vue.use(VueI18n);
 
-// import {VueTools} from 'formater-commons-components-vjs'
-// Vue.use(VueTools)
+import {VueTools} from 'formater-commons-components-vjs'
+Vue.use(VueTools)
 
 import GdmMapTio from './gdm-map-tio.vue'
 // import CompassRose from './compass-rose.vue'

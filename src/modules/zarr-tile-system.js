@@ -336,7 +336,7 @@ export default {
      
     return  this.loadTile(pos.tile.col, pos.tile.line).then(
       resp => {
-        var tile = pos.tile.col + '.' + pos.tile.line
+        var tile = pos.tile.line + '.' + pos.tile.col
         return {dimension: type, values: this.tiles[tile][type][pos.line][pos.col]}
       },
       resp => {return false}
