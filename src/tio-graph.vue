@@ -422,7 +422,7 @@ export default {
                  var pt = chart.series[0].points.find(el => el.x === this.point.x )
                  if (pt !== undefined) {
                    _this.pointDate[key] = pt.open
-                   values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + pt.open + '</div>')
+                   values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + (Math.round(pt.y * 1000) / 1000) + '</div>')
                  }
                }
                if (key !== type && chart) {

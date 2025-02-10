@@ -106,7 +106,6 @@ export default L.ImageOverlay.Rotated.extend({
     ZarrTileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
     .then (resp => {
       _this.fire('TIO:SEARCHING', {searching:false})
-      console.log(resp)
       if (resp && resp.values && resp.values[3] !== null) {
         _this.fire('TIO:DATA', resp)
       } 
