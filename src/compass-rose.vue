@@ -28,6 +28,10 @@
     refX="10" refY="3.5" orient="auto">
       <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" :fill="color2"/>
     </marker>
+    <marker id="arrowAz" markerWidth="10" markerHeight="7" 
+    refX="10" refY="3.5" orient="auto">
+      <polygon points="2.5 3.5, 0 0, 10 3.5, 0 7" fill="#000"/>
+    </marker>
     <marker id="hyphen" viewBox="0 0 0 10" refX="0" refY="5"
         markerWidth="6" markerHeight="6">
         
@@ -38,7 +42,7 @@
    <rect x="0" y="0" height="219" width="230" stroke="transparent"  fill="transparent"/>
 <image xlink:href="./assets/img/compass-rose.png" x="0" y="0" height="219" width="230"/>
 </g>-->
-<g>
+<g >
    <circle :cx="center.x" :cy="center.y" :r="radius - 2" stroke="#000" stroke-width="2" fill="transparent" />
    <line :x1="center.x" :y1="center.y - radius" :x2="center.x" :y2="center.y + radius" stroke="#000"/>
    <line :x1="center.x - radius" :y1="center.y" :x2="center.x + radius" :y2="center.y" stroke="#000"/>
@@ -49,7 +53,16 @@
    <text class="card" :x="center.x + radius + 3" :y="center.y + 6" text-anchor="start">E</text>
    <text  :x="center.x" :y="center.y + radius + 50" text-anchor="middle">{{dateStr}}</text>
 </g>
-<g >
+ <template v-if="geometry">
+  <g :transform="transform">
+   <line :x1="center.x" :y1="center.y" :x2="center.x" :y2="center.y - radius" stroke="#000" stroke-width="2" marker-end="url(#arrowAz)"/>
+   <line :x1="center.x" :y1="center.y" :x2="center.x + radius" :y2="center.y" stroke="#000" stroke-width="2" marker-end="url(#arrowAz)"/>
+   <text class="card" :x="center.x" :y="center.y - radius - 5" text-anchor="middle">Az</text>
+    <text class="card" :x="center.x + radius + 3" :y="center.y + 6" text-anchor="start">Rg</text>
+  </g>
+ </template>
+<g :transform="transform">
+ 
   <line v-if="point" :x1="center.x" :y1="center.y" :x2="point.x" :y2="point.y" :stroke="color" 
   stroke-width="2" marker-end="url(#arrowhead)" />
     <line v-if="ptDate" :x1="center.x" :y1="center.y" :x2="ptDate.x" :y2="ptDate.y" :stroke="color2" 
@@ -121,6 +134,10 @@ export default {
       type: Number,
       default: 3
     },
+    geometry: {
+      type: Object,
+      default: null
+    },
     dateStr: {
       type: String,
       default: null
@@ -172,6 +189,10 @@ export default {
       } else {
         return null
       }
+    },
+    transform () {
+       var t = 'rotate(200, '+ this.center.x + ',' + this.center.y + ') '
+       return t
     },
     magnRef () {
       var exp = Math.floor(Math.log10(this.maxComp))

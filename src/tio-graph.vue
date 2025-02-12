@@ -43,7 +43,7 @@
           <div><label>MAGN:</label> {{quality.magn}}</div>
           </div>
           <div >
-            <compass-rose :lang="lang" :width="100" :height="100" :max-velocity="point.magn" :max-comp="maxComp" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
+            <compass-rose :lang="lang" :width="100" :height="100" :geometry="true" :max-velocity="point.magn" :max-comp="maxComp" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
             :color2="compassColors.date" :date-ns="pointDate.ns" :date-ew="pointDate.ew" :date-str="pointDate.date"></compass-rose>
           </div>
          <!--    <div class="tio-element" style="">
