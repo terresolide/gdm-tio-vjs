@@ -37,6 +37,9 @@
         
       <line x1="0" y1="0" x2="0" y2="10" :stroke="color" />
     </marker>
+    <filter x="-0.1" y="-0.1" width="1.2" height="1.2" id="solid">
+      <feFlood flood-color="#fff"/>
+    </filter>
   </defs>
  <!--  <g>
    <rect x="0" y="0" height="219" width="230" stroke="transparent"  fill="transparent"/>
@@ -57,8 +60,10 @@
   <g :transform="transform">
    <line :x1="center.x" :y1="center.y" :x2="center.x" :y2="center.y - radius" stroke="#000" stroke-width="2" marker-end="url(#arrowAz)"/>
    <line :x1="center.x" :y1="center.y" :x2="center.x + radius" :y2="center.y" stroke="#000" stroke-width="2" marker-end="url(#arrowAz)"/>
-   <text class="card" :x="center.x" :y="center.y - radius - 5" text-anchor="middle">Az</text>
-    <text class="card" :x="center.x + radius + 3" :y="center.y + 6" text-anchor="start">Rg</text>
+   <text class="card"  filter="url(#solid)" :x="center.x" :y="center.y - radius - 10 " dominant-baseline="central" text-anchor="middle" >long</text>
+   <text class="card"  :x="center.x" :y="center.y - radius - 10 " dominant-baseline="central" text-anchor="middle" :transform="textTransform('Az')">Az</text>
+   <text class="card" filter="url(#solid)" :x="center.x + radius + 15" :y="center.y" text-anchor="middle" dominant-baseline="central" >Rg</text>
+    <text class="card"  :x="center.x + radius + 15" :y="center.y" text-anchor="middle" dominant-baseline="central" :transform="textTransform('Rg')">Rg</text>
     
   </g>
  </template>
@@ -170,7 +175,8 @@ export default {
         x: 125,
         y: 125
       },
-      radius: 100
+      radius: 100,
+      teta: 220
     }
   },
   computed: {
@@ -200,8 +206,9 @@ export default {
         return null
       }
     },
+    
     transform () {
-       var t = 'rotate(200, '+ this.center.x + ',' + this.center.y + ') '
+       var t = 'rotate('+ this.teta + ', '+ this.center.x + ',' + this.center.y + ') '
        return t
     },
     magnRef () {
@@ -227,6 +234,20 @@ export default {
     this.center.x = this.size.width / 4
     this.center.y = this.size.height / 2
     this.$i18n.locale = this.lang
+  },
+  methods: {
+    textTransform (type) {
+      if (this.teta > 90 && this.teta < 270) {
+        switch(type) {
+          case 'Az':
+            return 'rotate(180,' + this.center.x + ',' + (this.center.y - this.radius - 10) + ')'
+          case 'Rg':
+            return 'rotate(180,' + (this.center.x + this.radius + 15) + ',' + this.center.y + ')'
+
+        }
+      }
+      return ''
+    }
   }
 }
 </script>
