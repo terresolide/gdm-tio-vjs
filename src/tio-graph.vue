@@ -307,7 +307,6 @@ export default {
         if (chart && typeof chart !== 'undefined') {
           var pt = chart.series[0].points.find(el => el.x === point.x )
           if (pt !== undefined) {
-           console.log('trouvé', pt)
            this.pointDate[key] = pt.open || pt.y
           }
           chart.xAxis[0].removePlotLine('highlight')
@@ -319,7 +318,7 @@ export default {
          })
         }
       } 
-      console.log(this.pointDate)   
+     
     },
 //     draw (type, values) {
 //       console.log(values)
@@ -355,10 +354,10 @@ export default {
           // check if it's last data composante
       var comp2 = null
       // case type = ns or ew and the others is ok
-      if (type === 'ns' && this.ewValues.length > 1) {
+      if (type === 'ns' && this.ewValues && this.ewValues.length > 1) {
         comp2 = this.ewValues
       }
-      if (type === 'ew' && this.nsValues.length > 1) {
+      if (type === 'ew' && this.nsValues && this.nsValues.length > 1) {
         comp2 = this.nsValues
       }
       // remove graph if exists
@@ -379,13 +378,14 @@ export default {
         if (comp2) {
           if (tab[n] !== null) {
             _this.magnValues[n] = Math.round(Math.sqrt(tab[n] * tab[n] + comp2[n] * comp2[n]) * 1000) / 1000
-            if (_this.maxComp < _this.magnValues[n]) {
+            if (_this.maxComp < _this.magnValues[n] && _this.magnValues[n] != Infinity) {
               _this.maxComp = _this.magnValues[n]
             }
           } else {
             _this.magnValues[n] = null
           }
         }
+        
         if (!isNaN(tab[n]) && tab[n] !== null && tab[n] != Infinity) {
             data.push([
               date, 
@@ -407,6 +407,7 @@ export default {
            })
         }
       })
+      console.log('maxComp', this.maxComp)
       if (data.length === 0) {
         return
       }
@@ -444,7 +445,7 @@ export default {
               if (chart && typeof chart !== 'undefined') {
                  var pt = chart.series[0].points.find(el => el.x === this.point.x )
                  if (pt !== undefined) {
-                   _this.pointDate[key] = pt.open
+                   _this.pointDate[key] = pt.open || pt.y
                    values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + (Math.round(pt.y * 1000) / 1000) + '</div>')
                  }
                }
