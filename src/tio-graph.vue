@@ -43,7 +43,7 @@
           <div><label>MAGN:</label> {{quality.magn}}</div>
           </div>
           <div >
-            <compass-rose :lang="lang" :width="100" :height="100" :geometry="true" :max-velocity="point.magn" :max-comp="maxComp" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
+            <compass-rose :lang="lang" :width="100" :height="100" :geometry="geometry" :max-velocity="point.magn" :max-comp="maxComp" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
             :color2="compassColors.date" :date-ns="pointDate.ns" :date-ew="pointDate.ew" :date-str="pointDate.date"></compass-rose>
           </div>
          <!--    <div class="tio-element" style="">
@@ -159,6 +159,10 @@ export default {
     latlng: {
        type: Object,
        default: () => {return {lat: null, lng: null}}
+    },
+    geometry: {
+      type: Object,
+      default: null
     },
     lang: {
       type: String,
@@ -350,6 +354,19 @@ export default {
        this.$el.querySelector('#graph_' + type).appendChild(spinner)
        
     },
+    title (type) {
+      if (!this.geometry) {
+        return type.toUpperCase()
+      }
+      switch(type) {
+        case 'ns':
+          return 'Az'
+        case 'ew':
+          return 'Rg'
+        default:
+          return 'Magn'
+      }
+    }, 
     drawZarr (type, tab) {
           // check if it's last data composante
       var comp2 = null
@@ -446,7 +463,7 @@ export default {
                  var pt = chart.series[0].points.find(el => el.x === this.point.x )
                  if (pt !== undefined) {
                    _this.pointDate[key] = pt.open || pt.y
-                   values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + key.toUpperCase() + ': ' + (Math.round(pt.y * 1000) / 1000) + '</div>')
+                   values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + _this.title(type) + ': ' + (Math.round(pt.y * 1000) / 1000) + '</div>')
                  }
                }
                if (key !== type && chart) {
@@ -482,7 +499,7 @@ export default {
          },
          yAxis: {
              title: {
-                 text: type.toUpperCase()
+                 text: _this.title(type)
              },
              min: min,
              max: max,

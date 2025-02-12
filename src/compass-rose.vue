@@ -59,6 +59,7 @@
    <line :x1="center.x" :y1="center.y" :x2="center.x + radius" :y2="center.y" stroke="#000" stroke-width="2" marker-end="url(#arrowAz)"/>
    <text class="card" :x="center.x" :y="center.y - radius - 5" text-anchor="middle">Az</text>
     <text class="card" :x="center.x + radius + 3" :y="center.y + 6" text-anchor="start">Rg</text>
+    
   </g>
  </template>
 <g :transform="transform">
@@ -177,14 +178,23 @@ export default {
       if (!this.velocityRef) {
         return null
       }
-      var x = (-1) * this.ew * this.radius / this.velocityRef + this.center.x
-      var y = this.ns * this.radius / this.velocityRef + this.center.y
+      var direction = 1
+      if (this.geometry) {
+        var direction = -1
+      }
+      var x = (-1) * direction * this.ew * this.radius / this.velocityRef + this.center.x
+      var y = direction * this.ns * this.radius / this.velocityRef + this.center.y
       return {x: x, y: y}
     },
     ptDate () {
       if (this.dateEw && this.dateNs) {
-        var x = (-1) * this.dateEw * this.radius / this.magnRef + this.center.x
-        var y = this.dateNs * this.radius / this.magnRef + this.center.y
+        var direction = 1
+        if (this.geometry) {
+          var direction = -1
+        }
+        var x =  (-1) * direction * this.dateEw * this.radius / this.magnRef + this.center.x
+        
+        var y = direction * this.dateNs * this.radius / this.magnRef + this.center.y
         return {x: x, y: y}
       } else {
         return null
