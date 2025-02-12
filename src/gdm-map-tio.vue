@@ -19,7 +19,7 @@
 	  <div v-if="imgTio && searching" style="position:absolute;top:270px;left:45%;z-index:10;color:grey;" class="fa fa-spinner fa-spin fa-2x fa-fw"></div>
 	  <div id="gdmMap" style="width:100%;min-height:500px;" :style="{height: height + 'px'}"></div>
   </div>
-   <tio-graph v-if="imgTio" v-show="showGraph" :dates="imgTio.dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
+   <tio-graph v-if="imgTio" v-show="showGraph" :latlng="latlng" :dates="imgTio.dates" :ns-values="ptValues.ns" :ew-values="ptValues.ew" 
    :keys="imgTio.keys" :maximum="imgTio.max" :lang="lang" @close="showGraph=false"></tio-graph>
 <!--   <div v-if="imgTio && images.length > 0">
      <div v-for="(image, index) in images">
@@ -65,6 +65,7 @@ export default {
   			  ns: [],
   			  ew: []
   			},
+        latlng: {lat: null, lng: null},
   			searching: false,
   			showGraph: false,
   			height: 500,
@@ -130,6 +131,9 @@ export default {
       this.imgTio.on('TIO:DATA', function (resp) {
 //         console.log(resp)
 //         marker.setLatLng([resp.values[0], resp.values[1]])
+        if (resp.latlng) {
+          _this.latlng = resp.latlng
+        }
         _this.draw(resp.dimension, {values: resp.values})
       })
       this.imgTio.on('TIO:SEARCHING', function (data) {

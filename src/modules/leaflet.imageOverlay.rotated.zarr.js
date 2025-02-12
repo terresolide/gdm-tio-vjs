@@ -107,6 +107,7 @@ export default L.ImageOverlay.Rotated.extend({
     .then (resp => {
       _this.fire('TIO:SEARCHING', {searching:false})
       if (resp && resp.values && resp.values[3] !== null) {
+        resp.latlng = e.latlng
         _this.fire('TIO:DATA', resp)
       } 
     })
@@ -114,6 +115,7 @@ export default L.ImageOverlay.Rotated.extend({
     .then(resp => {
       _this.fire('TIO:SEARCHING', {searching:false})
       if (resp && resp.values && resp.values[3] !== null) {
+        resp.latlng = e.latlng
         _this.fire('TIO:DATA', resp)
       }
     })

@@ -28,7 +28,7 @@
           <label>POSITION</label>
           <div><label>Lat:</label> {{Math.round(position.lat * 1000) / 1000}}°</div>
           <div><label>Lng:</label> {{Math.round(position.lng * 1000) / 1000}}°</div>
-          <div><label>{{$t('height')}}:</label> {{position.height.toLocaleString()}} m</div>
+          <div v-if="position.height"><label>{{$t('height')}}:</label> {{position.height.toLocaleString()}} m</div>
           </div>
           <div class="tio-element" >
           <label>{{$t('mean_velocity').toUpperCase()}}</label>
@@ -148,6 +148,10 @@ export default {
       type: Number,
       default: 180
     },
+    latlng: {
+       type: Object,
+       default: () => {return {lat: null, lng: null}}
+    },
     lang: {
       type: String,
       default: 'en'
@@ -203,9 +207,15 @@ export default {
     magnValues (newvalues) {
       this.pointDateInit()
       this.draw('magn', newvalues)
+    },
+    latlng (newvalues) {
+      if (newvalues.lat && newvalues.lng) {
+        this.position = newvalues
+      }
     }
   },
   created () {
+    this.position = this.latlng
     this.$i18n.locale = this.lang
     moment.locale(this.lang)
     this.windowResizeListener = this.initSize.bind(this)
@@ -385,7 +395,6 @@ export default {
            })
         }
       })
-      console.log(data)
       if (data.length === 0) {
         return
       }
