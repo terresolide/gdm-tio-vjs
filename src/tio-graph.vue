@@ -36,7 +36,7 @@
           <div><label>EW:</label> {{point.ew}}</div>
           <div><label>MAGN:</label> {{point.magn}}</div>
           </div>
-          <div class="tio-element" style="">
+          <div class="tio-element" style="" v-if="quality.ns && quality.ew">
           <label>{{$t('QUALITY')}}</label>
           <div><label>NS:</label> {{quality.ns}}</div>
           <div><label>EW:</label> {{quality.ew}}</div>
@@ -106,6 +106,14 @@ import HighchartsExporting from 'highcharts/modules/exporting'
      ],
      r
    };
+}
+function velocity(data) {
+  let div = []
+  for (var i=0; i < data.length - 1; i++) {
+    var v = (data[i+1][1] - data[i][1])  * 1000 * 3600 * 24 / (data[i+1][0] - data[i][0])
+    div.push(v)
+  }
+  return jStat.sum(div) / div.length
 }
 if (typeof Highcharts === 'object') {
     HighchartsExporting(Highcharts)
@@ -399,6 +407,8 @@ export default {
         return
       }
       var reg = regression(regData, dates)
+      var velo = velocity(data)
+      console.log(type, velo)
     
       var color = this.colors[type]
       var lightColor = this.$shadeColor(color, 0.4)
