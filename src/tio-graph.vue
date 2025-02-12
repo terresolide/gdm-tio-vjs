@@ -30,11 +30,11 @@
           <div><label>Lng:</label> {{Math.round(position.lng * 1000) / 1000}}°</div>
           <div v-if="position.height"><label>{{$t('height')}}:</label> {{position.height.toLocaleString()}} m</div>
           </div>
-          <div class="tio-element" >
+          <div class="tio-element"  v-if="point.ns && point.ew && point.magn">
           <label>{{$t('mean_velocity').toUpperCase()}}</label>
-          <div><label>NS:</label> {{point.ns}}</div>
-          <div><label>EW:</label> {{point.ew}}</div>
-          <div><label>MAGN:</label> {{point.magn}}</div>
+          <div><label>NS:</label> {{point.ns.toLocaleString()}}</div>
+          <div><label>EW:</label> {{point.ew.toLocaleString()}}</div>
+          <div><label>MAGN:</label> {{point.magn.toLocaleString()}}</div>
           </div>
           <div class="tio-element" style="" v-if="quality.ns && quality.ew">
           <label>{{$t('QUALITY')}}</label>
@@ -107,14 +107,14 @@ import HighchartsExporting from 'highcharts/modules/exporting'
      r
    };
 }
-function velocity(data) {
-  let div = []
-  for (var i=0; i < data.length - 1; i++) {
-    var v = (data[i+1][1] - data[i][1])  * 1000 * 3600 * 24 / (data[i+1][0] - data[i][0])
-    div.push(v)
-  }
-  return jStat.sum(div) / div.length
-}
+// function velocity(data) {
+//   let div = []
+//   for (var i=0; i < data.length - 1; i++) {
+//     var v = (data[i+1][1] - data[i][1])  * 1000 * 3600 * 24 / (data[i+1][0] - data[i][0])
+//     div.push(v)
+//   }
+//   return jStat.sum(div) / div.length
+// }
 if (typeof Highcharts === 'object') {
     HighchartsExporting(Highcharts)
     HighchartsMore(Highcharts) // init module
@@ -174,7 +174,7 @@ export default {
       quality: {},
       graphs: {},
       position: {lat: null, lng: null},
-      point: {ns: 0, ew: 0},
+      point: {ns: 0, ew: 0, magn: null},
       pointDate: {ns: null, ew: null, magn: null, date: null},
       hasValues: false,
       windowHeight: 700,
@@ -295,17 +295,20 @@ export default {
       }
       event = this.graphs[type].pointer.normalize(e);
       var point = this.graphs[type].series[0].searchPoint(event, true);
+  
       if (!point) {
         return
       }  
       this.pointDate.date = moment.unix(point.x / 1000).format('ll')
-      this.pointDate[type] = point.open
+      this.pointDate[type] = point.open || point.y
+  
       for (var key in this.graphs) {
         var chart = this.graphs[key];
         if (chart && typeof chart !== 'undefined') {
-          var pt = chart.series[0].points.find(el => el.x === this.point.x )
+          var pt = chart.series[0].points.find(el => el.x === point.x )
           if (pt !== undefined) {
-           this.pointDate[key] = pt.open
+           console.log('trouvé', pt)
+           this.pointDate[key] = pt.open || pt.y
           }
           chart.xAxis[0].removePlotLine('highlight')
           chart.xAxis[0].addPlotLine({
@@ -315,7 +318,8 @@ export default {
            id: 'highlight'
          })
         }
-      }    
+      } 
+      console.log(this.pointDate)   
     },
 //     draw (type, values) {
 //       console.log(values)
@@ -407,9 +411,9 @@ export default {
         return
       }
       var reg = regression(regData, dates)
-      var velo = velocity(data)
-      console.log(type, velo)
-    
+
+      var velo = (data[data.length -1][1] - data[0][1]) * 1000 * 3600 * 24 / ((data[data.length -1][0] - data[0][0]))
+      this.point[type] = velo
       var color = this.colors[type]
       var lightColor = this.$shadeColor(color, 0.4)
       this.graphs[type] = Highcharts.chart('graph_' + type, {

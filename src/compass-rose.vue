@@ -50,7 +50,7 @@
    <text  :x="center.x" :y="center.y + radius + 50" text-anchor="middle">{{dateStr}}</text>
 </g>
 <g >
-  <line :x1="center.x" :y1="center.y" :x2="point.x" :y2="point.y" :stroke="color" 
+  <line v-if="point" :x1="center.x" :y1="center.y" :x2="point.x" :y2="point.y" :stroke="color" 
   stroke-width="2" marker-end="url(#arrowhead)" />
     <line v-if="ptDate" :x1="center.x" :y1="center.y" :x2="ptDate.x" :y2="ptDate.y" :stroke="color2" 
   stroke-width="2" marker-end="url(#arrowhead2)" />
@@ -157,6 +157,9 @@ export default {
   },
   computed: {
     point () {
+      if (!this.velocityRef) {
+        return null
+      }
       var x = (-1) * this.ew * this.radius / this.velocityRef + this.center.x
       var y = this.ns * this.radius / this.velocityRef + this.center.y
       return {x: x, y: y}
@@ -176,6 +179,9 @@ export default {
       return n * Math.pow(10, exp)
     },
     velocityRef () {
+      if (!this.maxVelocity) {
+        return null
+      }
       var exp = Math.floor(Math.log10(this.maxVelocity))
       var n = Math.round(this.maxVelocity / Math.pow(10, exp))
       var res = n * Math.pow(10, exp)
