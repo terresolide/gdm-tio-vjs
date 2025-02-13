@@ -35,12 +35,12 @@
 
 var L = require("leaflet")
 const TioGraph = () => import('./tio-graph.vue')
-import Zarr from './modules/leaflet.imageOverlay.rotated.zarr.js'
+import Tio from './modules/leaflet.imageOverlay.rotated.tio.js'
 // require('./modules/leaflet.control.legend.js')
  L.Control.Legend = require('formater-commons-components-vjs/src/leaflet/leaflet.control.legend.js')
 require('./modules/leaflet.control.opacity.js')
 require('./modules/leaflet.control.gdmlayer.js')
-L.ImageOverlay.Rotated.Zarr = Zarr
+L.ImageOverlay.Rotated.Tio = Tio
 
 export default {
   name: 'GdmMapTio',
@@ -118,7 +118,7 @@ export default {
       this.controlOpacity = new L.Control.Opacity(this.$i18n.locale)
       this.controlOpacity.addTo(this.map)
       // control.addTo(this.map)
-      this.imgTio = new L.ImageOverlay.Rotated.Zarr(this.root)
+      this.imgTio = new L.ImageOverlay.Rotated.Tio(this.root)
       this.imgTio.type = 'TIO'
       this.imgTio.first = 'Time series'
         this.controlOpacity.setLayers([this.imgTio])

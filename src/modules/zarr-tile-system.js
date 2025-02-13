@@ -64,59 +64,11 @@ export default {
   extractTileUrl (data) {
     this.url.ew = data.properties.ew
     this.url.ns = data.properties.ns
-    this.url.ew.baseurl = "https://s3.unistra.fr/gdmsarcor/job_2024-10-30_12-25-44_013862_aimhce/Rg_Displacements_TS.zarr"
-    this.url.ns.baseurl = "https://s3.unistra.fr/gdmsarcor/job_2024-10-30_12-25-44_013862_aimhce/Az_Displacements_TS.zarr"
+    // this.url.ew.baseurl = "https://s3.unistra.fr/gdmsarcor/job_2024-10-30_12-25-44_013862_aimhce/Rg_Displacements_TS.zarr"
+    // this.url.ns.baseurl = "https://s3.unistra.fr/gdmsarcor/job_2024-10-30_12-25-44_013862_aimhce/Az_Displacements_TS.zarr"
 
   },
-  // initializeTile (tile, key, data) {
-  //   if (!this.tiles[tile]) {
-  //     this.tiles[tile] = {}
-  //   }
-  //   if (!this.tiles[tile][key]) {
-  //     this.tiles[tile][key] = data.data
-  //   }
-  //  // this.searchValidPoints(tile, key)
-  //   if (!this.tiles[tile].loaded && this.tiles[tile].ns && this.tiles[tile].ew ) {
-  //     this.tiles[tile].loaded = true
-  //     this.searchValidPoints(tile, 'ns')
-  //   }
-  // },
-//   searchValidPoints (tile, key) {
-//     var points = []
-//     // var points13 = []
-//     this.tiles[tile][key].forEach(function (line, index0) {
-//       line.forEach(function (col, index) {
-//         if (col[3] !== null) {
-//          // if ((index0 + index) % 3 === 0) {
-//             points.push({pt:[col[0], col[1]], value: col[3]})
-//         //  }
-// //          else {
-// //            points13.push({pt:[col[0], col[1]], value:col[66]})
-// //          }
-//         }
-//       })
-//     })
-//     if (this.parent && this.images.length === 0) {
-//       this.parent.addMarkers(points)
-//     }
-//   },
-  // load (root, parent) {
-  //   console.log('load = ' + root)
-  //   this.parent = parent
-  //   this._root = root
-  //   var part = root.split('/')
-  //   part.pop()
-  //   var dir = part.join('/')
-  //   this.dir = dir + '/'
-  //   var _dir = this.dir
-  //   return new Promise((successCallback, failureCallback) => {
-  //     Vue.http.get(root)
-  //     .then(resp => {
-  //        this.initialize(resp.body)
-  //        successCallback(resp.body)},
-  //        resp => failureCallback(resp))
-  //   })
-  // },
+ 
   loadAll () { // <-
     for (let i_xblock=0; i_xblock<nb_block_xsize; i_xblock++) {
       for (let i_yblock=0; i_yblock<nb_block_ysize; i_yblock++) {
@@ -137,7 +89,6 @@ export default {
       }
       data.push(slice);
     }
-    console.log(data)
     return data;
   },
   async loadZarrData(url) { // <-
@@ -205,21 +156,14 @@ export default {
     const tile_index = i_yblock + '.' + i_xblock
     var self = this
     return new Promise((successCallback, failureCallback) => {
-      // if (tile === false) {
-      //   if (failureCallback) {
-      //     failureCallback()
-      //   }
-      //   return false
-      // }
+     
       if (self.tiles[tile_index] && self.tiles[tile_index].loaded) {
         if (successCallback) {
           successCallback()
         }
         return true
       }
-      console.log(self.url.ew )
       if (!self.url.ew || !self.url.ns) {
-        console.log('là')
         if (failureCallback) {
           failureCallback('MISSING INFORMATION')
         }
@@ -227,7 +171,6 @@ export default {
       }
       // <--
       if (i_xblock >= self.nb_block_xsize || i_yblock >= self.nb_block_ysize || i_xblock < 0 || i_yblock < 0) {
-        console.log('out of bounds')
         // out of bounds
         if (failureCallback) {
           failureCallback('OUT OF BOUNDS')
@@ -235,19 +178,15 @@ export default {
         return false
         
       }
-      console.log('777 2 ---',self.url.ew )
-      console.log('--- idi ---')
       if (!self.tiles[tile_index]) {
         // first try to load -> init
          self.tiles[tile_index] = {}
       } else {
         // else check if it is already loaded
         if (self.tiles[tile_index].loaded) {
-          console.log('déjà chargé')
           return;
         }
       }
-      console.log('par là')
       let directions = [];
       directions[0] = 'ns';
       directions[1] = 'ew';
