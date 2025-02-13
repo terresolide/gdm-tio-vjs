@@ -56,7 +56,7 @@
    <text class="card" :x="center.x + radius + 3" :y="center.y + 6" text-anchor="start">E</text>
    <text  :x="center.x" :y="center.y + radius + 50" text-anchor="middle">{{dateStr}}</text>
 </g>
- <template v-if="geometry">
+ <template v-if="radar">
   <g :transform="transform">
    <line :x1="center.x" :y1="center.y" :x2="center.x" :y2="center.y - radius" stroke="#000" stroke-width="2" marker-end="url(#arrowAz)"/>
    <line :x1="center.x" :y1="center.y" :x2="center.x + radius" :y2="center.y" stroke="#000" stroke-width="2" marker-end="url(#arrowAz)"/>
@@ -140,7 +140,7 @@ export default {
       type: Number,
       default: 3
     },
-    geometry: {
+    radar: {
       type: Object,
       default: null
     },
@@ -176,7 +176,7 @@ export default {
         y: 125
       },
       radius: 100,
-      teta: 220
+      teta: 20
     }
   },
   computed: {
@@ -185,7 +185,7 @@ export default {
         return null
       }
       var direction = 1
-      if (this.geometry) {
+      if (this.radar) {
         var direction = -1
       }
       var x = (-1) * direction * this.ew * this.radius / this.velocityRef + this.center.x
@@ -195,7 +195,7 @@ export default {
     ptDate () {
       if (this.dateEw && this.dateNs) {
         var direction = 1
-        if (this.geometry) {
+        if (this.radar) {
           var direction = -1
         }
         var x =  (-1) * direction * this.dateEw * this.radius / this.magnRef + this.center.x

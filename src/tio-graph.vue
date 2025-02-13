@@ -43,7 +43,7 @@
           <div><label>MAGN:</label> {{quality.magn}}</div>
           </div>
           <div >
-            <compass-rose :lang="lang" :width="100" :height="100" :geometry="geometry" :max-velocity="point.magn" :max-comp="maxComp" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
+            <compass-rose :lang="lang" :width="100" :height="100"  :radar="img.radar" :max-velocity="point.magn" :max-comp="maxComp" :ns="point.ns" :ew="point.ew" :color="compassColors.mean"
             :color2="compassColors.date" :date-ns="pointDate.ns" :date-ew="pointDate.ew" :date-str="pointDate.date"></compass-rose>
           </div>
          <!--    <div class="tio-element" style="">
@@ -136,19 +136,15 @@ export default {
     CompassRose
   },
   props: {
-    dates: {
-      type: Array,
-      default: () => []
+    img: {
+      type: Object,
+      default: null
     },
     nsValues: {
       type: Array,
       default: () => []
     },
     ewValues: {
-      type: Array,
-      default: () => []
-    },
-    keys: {
       type: Array,
       default: () => []
     },
@@ -160,17 +156,9 @@ export default {
        type: Object,
        default: () => {return {lat: null, lng: null}}
     },
-    geometry: {
-      type: Object,
-      default: null
-    },
     lang: {
       type: String,
       default: 'en'
-    },
-    maximum: {
-      type: Number,
-      default: null
     }
   },
   data () {
@@ -355,7 +343,7 @@ export default {
        
     },
     title (type) {
-      if (!this.geometry) {
+      if (!this.img.radar) {
         return type.toUpperCase()
       }
       switch(type) {
@@ -391,7 +379,7 @@ export default {
       var plotlines = []
       var regData = []
       var dates = []
-      this.dates.forEach (function (date, n) {
+      this.img.dates.forEach (function (date, n) {
         if (comp2) {
           if (tab[n] !== null) {
             _this.magnValues[n] = Math.round(Math.sqrt(tab[n] * tab[n] + comp2[n] * comp2[n]) * 1000) / 1000
@@ -463,7 +451,7 @@ export default {
                  var pt = chart.series[0].points.find(el => el.x === this.point.x )
                  if (pt !== undefined) {
                    _this.pointDate[key] = pt.open || pt.y
-                   values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + _this.title(type) + ': ' + (Math.round(pt.y * 1000) / 1000) + '</div>')
+                   values.push('<div><span style="color:'+ pt.color +';">&#9632;</span> ' + _this.title(key) + ': ' + (Math.round(pt.y * 1000) / 1000) + '</div>')
                  }
                }
                if (key !== type && chart) {
@@ -531,7 +519,7 @@ export default {
       }
     },
     draw (type, tab) {
-      if (this.keys.length === 0) {
+      if (this.img.radar) {
          this.drawZarr(type, tab)
          return
       }
@@ -558,12 +546,12 @@ export default {
         this.magnValues[1] = tab[1]
         this.magnValues[2] = tab[2]
       }
-      var index = this.keys.findIndex(tb => tb === 'velocity')
+      var index = this.img.keys.findIndex(tb => tb === 'velocity')
       this.point[type] = tab[index]
       if (comp2) {
         this.magnValues[index] = Math.round(Math.sqrt(tab[index] * tab[index] + comp2[index] * comp2[index]) * 10000) / 10000
       }
-      index = this.keys.findIndex(tb => tb === 'quality')
+      index = this.img.keys.findIndex(tb => tb === 'quality')
       var quality = Math.round(tab[index] * 100) / 100
       if (comp2) {
         this.magnValues[index] = Math.sqrt(tab[index] * tab[index] + comp2[index] * comp2[index])
@@ -575,8 +563,8 @@ export default {
         return
       }
       this.hasValues = true
-      var begin = this.keys.length
-      tab = tab.slice(this.keys.length)
+      var begin = this.img.keys.length
+      tab = tab.slice(this.img.keys.length)
       var data = []
       var min = null
       var max = null
@@ -592,7 +580,7 @@ export default {
         // initialize the max in vector composant
         this.maxComp = null
       }
-      this.dates.forEach (function (date, n) {
+      this.img.dates.forEach (function (date, n) {
         if (comp2) {
           if (tab[n] !== null) {
             _this.magnValues[begin + n] = Math.round(Math.sqrt(tab[n] * tab[n] + comp2[begin + n] * comp2[begin + n]) * 1000) / 1000

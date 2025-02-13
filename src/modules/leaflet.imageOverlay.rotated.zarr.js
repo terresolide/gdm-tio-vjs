@@ -25,6 +25,7 @@ export default L.ImageOverlay.Rotated.extend({
   dates: [],
   keys: [],
   images: [],
+  radar: null,
   searching: false,
   legend: null,
   _marker: null,
@@ -97,12 +98,17 @@ export default L.ImageOverlay.Rotated.extend({
 //    this._polygon.on('click', this.searchData)
 //    
 //  },
-  searchData (e)
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+  async searchData (e)
   {
     var _this = this
     this._marker.setLatLng(e.latlng)
     this.fire('TIO:RESET')
     this.fire('TIO:SEARCHING',{searching:true})
+    await this.sleep(0);
+    
     ZarrTileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
     .then (resp => {
       _this.fire('TIO:SEARCHING', {searching:false})
@@ -128,6 +134,7 @@ export default L.ImageOverlay.Rotated.extend({
     this.keys = geojson.properties.keys
     this.images = geojson.properties.images
     this.legend = this.images[0].legend
+    this.radar = {}
     this._polygon = L.geoJSON(
         geojson,
        {style() {return {weight: 1, fillOpacity: 0.05, color:'blue'}}}
