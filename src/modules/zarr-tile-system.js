@@ -61,10 +61,12 @@ export default {
     this.computeCoordSystem(data)
     // this.loadAll(0, 0)
   },
-  extractTileUrl (data) { // <-
-    console.log(data)
+  extractTileUrl (data) {
     this.url.ew = data.properties.ew
     this.url.ns = data.properties.ns
+    this.url.ew.baseurl = "https://s3.unistra.fr/gdmsarcor/job_2024-10-30_12-25-44_013862_aimhce/Rg_Displacements_TS.zarr"
+    this.url.ns.baseurl = "https://s3.unistra.fr/gdmsarcor/job_2024-10-30_12-25-44_013862_aimhce/Az_Displacements_TS.zarr"
+
   },
   // initializeTile (tile, key, data) {
   //   if (!this.tiles[tile]) {
@@ -98,23 +100,23 @@ export default {
 //       this.parent.addMarkers(points)
 //     }
 //   },
-  load (root, parent) {
-    console.log('load = ' + root)
-    this.parent = parent
-    this._root = root
-    var part = root.split('/')
-    part.pop()
-    var dir = part.join('/')
-    this.dir = dir + '/'
-    var _dir = this.dir
-    return new Promise((successCallback, failureCallback) => {
-      Vue.http.get(root)
-      .then(resp => {
-         this.initialize(resp.body)
-         successCallback(resp.body)},
-         resp => failureCallback(resp))
-    })
-  },
+  // load (root, parent) {
+  //   console.log('load = ' + root)
+  //   this.parent = parent
+  //   this._root = root
+  //   var part = root.split('/')
+  //   part.pop()
+  //   var dir = part.join('/')
+  //   this.dir = dir + '/'
+  //   var _dir = this.dir
+  //   return new Promise((successCallback, failureCallback) => {
+  //     Vue.http.get(root)
+  //     .then(resp => {
+  //        this.initialize(resp.body)
+  //        successCallback(resp.body)},
+  //        resp => failureCallback(resp))
+  //   })
+  // },
   loadAll () { // <-
     for (let i_xblock=0; i_xblock<nb_block_xsize; i_xblock++) {
       for (let i_yblock=0; i_yblock<nb_block_ysize; i_yblock++) {
@@ -215,8 +217,6 @@ export default {
         }
         return true
       }
-      console.log('ici')
-      console.log('et encore là')
       console.log(self.url.ew )
       if (!self.url.ew || !self.url.ns) {
         console.log('là')
@@ -225,12 +225,6 @@ export default {
         }
         return false
       }
-      console.log(i_xblock)
-
-      console.log('666 2 ---',self.xsize )
-      console.log(i_yblock)
-      
-      console.log('666 2 ---',self.nb_block_ysize )
       // <--
       if (i_xblock >= self.nb_block_xsize || i_yblock >= self.nb_block_ysize || i_xblock < 0 || i_yblock < 0) {
         console.log('out of bounds')

@@ -15,8 +15,9 @@ Icon.Default.mergeOptions({
 })
 import moment from 'moment'
 
-import ZarrTileSystem from './zarr-tile-system.js'
 
+import ZarrTileSystem  from './zarr-tile-system.js'
+import TileSystem  from './tile-system.js'
 
 export default L.ImageOverlay.Rotated.extend({
   // includes: L.Mixin.Events,
@@ -35,6 +36,7 @@ export default L.ImageOverlay.Rotated.extend({
   _map: null,
   _ready: false,
   _index: -1,
+  _tileSystem: null,
   options: {
     opacity: 0.7
   },
@@ -50,8 +52,18 @@ export default L.ImageOverlay.Rotated.extend({
   {
     this._root = root
     var _this = this
-    ZarrTileSystem.load(this._root)
-    .then( geojson => { _this.initView(geojson)} )
+    this._load(this._root)
+  },
+  _load(root) {
+      // console.log('load = ' + root)
+      // this.parent = parent
+      this._root = root
+      fetch(root)
+      .then(resp => resp.json())
+      .then(json => {
+        this.initView(json)
+        
+      })
   },
   onAdd (map) {
     
@@ -81,23 +93,6 @@ export default L.ImageOverlay.Rotated.extend({
   isLoaded () {
     return this._ready
   },
-//  addTo (map)
-//  {
-//
-//    this._map = map
-//    if (this._image && this._map.hasLayer(this._image)) {
-//      return
-//    }
-//    if (!this._image) {
-//      return
-//    }
-//    console.log('add')
-//    this._polygon.addTo(map)
-//    this._map.fitBounds(this._polygon.getBounds())
-//    this._image.addTo(map)
-//    this._polygon.on('click', this.searchData)
-//    
-//  },
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   },
@@ -109,7 +104,7 @@ export default L.ImageOverlay.Rotated.extend({
     this.fire('TIO:SEARCHING',{searching:true})
     await this.sleep(0);
     
-    ZarrTileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
+    this._tileSystem.searchData('ew', e.latlng.lat, e.latlng.lng)
     .then (resp => {
       _this.fire('TIO:SEARCHING', {searching:false})
       if (resp && resp.values && resp.values[3] !== null) {
@@ -117,7 +112,7 @@ export default L.ImageOverlay.Rotated.extend({
         _this.fire('TIO:DATA', resp)
       } 
     })
-    ZarrTileSystem.searchData('ns', e.latlng.lat, e.latlng.lng)
+    this._tileSystem.searchData('ns', e.latlng.lat, e.latlng.lng)
     .then(resp => {
       _this.fire('TIO:SEARCHING', {searching:false})
       if (resp && resp.values && resp.values[3] !== null) {
@@ -131,10 +126,9 @@ export default L.ImageOverlay.Rotated.extend({
   {
     this.max = Math.max(geojson.properties.percentile_90_ew, geojson.properties.percentile_90_ns)
     this.dates = geojson.properties.dates.map(dt => moment( dt, 'YYYYMMDD').valueOf())
-    this.keys = geojson.properties.keys
+    
     this.images = geojson.properties.images
     this.legend = this.images[0].legend
-    this.radar = {}
     this._polygon = L.geoJSON(
         geojson,
        {style() {return {weight: 1, fillOpacity: 0.05, color:'blue'}}}
@@ -149,6 +143,29 @@ export default L.ImageOverlay.Rotated.extend({
         {opacity: 0.5}
     )
     this._ready = true
+    var _this = this
+    if (geojson.properties.keys) {
+      this.keys = geojson.properties.keys
+      this._tileSystem = TileSystem
+      // lazy load
+      // import('./tile-system.js').then(ts => {
+      //   _this._tileSystem = ts.default
+      //   _this._tileSystem.initialize(geojson)
+      //   _this.fire('TIO:READY')
+      // })
+    }  else {
+      this.keys = []
+      this.radar = {}
+      this._tileSystem = ZarrTileSystem
+
+      // lazy load
+      // import('./zarr-tile-system.js').then(ts => {
+      //   _this._tileSystem = ts.default
+      //   _this._tileSystem.initialize(geojson)
+      // })
+      
+    }
+    this._tileSystem.initialize(geojson)
     this.fire('TIO:READY')
   }
 })

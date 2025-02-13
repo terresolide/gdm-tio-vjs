@@ -113,14 +113,6 @@ export default {
     this.loadTile('ns', tile)
     .then(
         resp => {return _this.loadTile('ew', tile)}
-
-       
-//    ).then(
-//        // end draw
-//        resp => new Promise(resolve => { // <== create a promise here
-//          setTimeout(function() {
-//            _this.loadTile('magn', tile).then(resp => {resolve()})
-//          }, 10)})
     ).then(
         resp => {
           var _tile = tile

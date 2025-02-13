@@ -412,7 +412,6 @@ export default {
            })
         }
       })
-      console.log('maxComp', this.maxComp)
       if (data.length === 0) {
         return
       }
