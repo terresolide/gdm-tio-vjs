@@ -195,17 +195,13 @@ export default {
       // itere sur ['ns', 'ew']
       for (let dir_index in directions) {
           const direction = directions[dir_index]
-          console.log(direction)
           // alloue le tableau 3D pour la tuile courante (mis à zéro)
           self.tiles[tile_index][direction] = self.allocateTile()
 
           // requête tous les blocs en Z de la tuile courante
           for (let i_zblock=0; i_zblock<self.nb_block_zsize; i_zblock++) {
               const cube_index = i_zblock + '.' + i_yblock + '.' + i_xblock
-              console.log(self.url[direction])
               const block_url = self.url[direction].baseurl + '/' + cube_index;
-              
-              console.log('block', cube_index, direction, '->', block_url);
               const _dir = direction
               dl_promises[dir_index*self.nb_block_zsize + i_zblock] = self.loadZarrData(block_url).then(
                   compressed_block => {

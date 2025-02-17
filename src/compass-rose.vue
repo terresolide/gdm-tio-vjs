@@ -175,8 +175,7 @@ export default {
         x: 125,
         y: 125
       },
-      radius: 100,
-      teta: 20
+      radius: 100
     }
   },
   computed: {
@@ -206,7 +205,12 @@ export default {
         return null
       }
     },
-    
+    teta () {
+      if (!this.radar) {
+        return null
+      }
+      return 360 - (this.radar.az - 90)
+    },
     transform () {
        var t = 'rotate('+ this.teta + ', '+ this.center.x + ',' + this.center.y + ') '
        return t

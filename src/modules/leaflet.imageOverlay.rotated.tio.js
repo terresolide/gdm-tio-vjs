@@ -155,7 +155,10 @@ export default L.ImageOverlay.Rotated.extend({
       // })
     }  else {
       this.keys = []
-      this.radar = {}
+      this.radar = {
+        "az": geojson.properties.Az_angle,
+        "rg": geojson.properties.Rg_angle
+      }
       this._tileSystem = ZarrTileSystem
 
       // lazy load
