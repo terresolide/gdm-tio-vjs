@@ -383,9 +383,9 @@ export default {
         if (comp2) {
           if (tab[n] !== null) {
             _this.magnValues[n] = Math.round(Math.sqrt(tab[n] * tab[n] + comp2[n] * comp2[n]) * 1000) / 1000
-            if (_this.maxComp < _this.magnValues[n] && _this.magnValues[n] != Infinity) {
-              _this.maxComp = _this.magnValues[n]
-            }
+            // if (_this.maxComp < _this.magnValues[n] && _this.magnValues[n] != Infinity) {
+            //   _this.maxComp = _this.magnValues[n]
+            // }
           } else {
             _this.magnValues[n] = null
           }
@@ -416,7 +416,9 @@ export default {
         return
       }
       var reg = regression(regData, dates)
-
+      if (type === 'magn') {
+        this.maxComp = Math.max(reg.line[0][1], reg.line[1][1])
+      }
       var velo = (data[data.length -1][1] - data[0][1]) * 1000 * 3600 * 24 / ((data[data.length -1][0] - data[0][0]))
       this.point[type] = velo
       var color = this.colors[type]
