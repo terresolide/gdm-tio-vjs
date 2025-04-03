@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "formater-commons-components-vjs": "github:terresolide/formater-commons-components-vjs",
     "highcharts": "^11.1.1",
     "jStat": "^1.8.6",
     "leaflet": "^1.7.1",
